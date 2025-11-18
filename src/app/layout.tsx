@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "DesignFi Studio | Hybrid Web2 & Web3 Creative Agency",
   description:
-    "DesignFi Studio is a hybrid Web2 & Web3 creative agency. We deliver elegant design systems, growth campaigns, and brand strategy for ambitious brands in traditional business and crypto.",
+    "Hybrid Web2 & Web3 creative agency delivering elegant design systems, growth campaigns, and brand strategy for ambitious brands.",
   keywords: [
     "DesignFi Studio",
     "Web3 marketing agency",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DesignFi Studio | Hybrid Web2 & Web3 Creative Agency",
     description:
-      "DesignFi Studio is a hybrid Web2 & Web3 creative agency. We deliver elegant design systems, growth campaigns, and brand strategy for ambitious brands in traditional business and crypto.",
+      "Hybrid Web2 & Web3 creative agency delivering elegant design systems, growth campaigns, and brand strategy for ambitious brands.",
     url: "https://designfi.studio",
     type: "website",
     siteName: "DesignFi Studio",
