@@ -13,7 +13,7 @@ const footerLinks = [
     title: "Resources",
     items: [
       { label: "Portfolio", href: "/portfolio" },
-      { label: "Blog", href: "/blog" },
+      { label: "Articles", href: "/articles" },
       { label: "Packages", href: "/packages" },
     ],
   },
