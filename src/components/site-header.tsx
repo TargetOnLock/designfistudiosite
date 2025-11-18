@@ -89,7 +89,7 @@ export function SiteHeader() {
             <Twitter className="h-5 w-5" />
           </a>
           <a
-            href="https://t.me/BlaineDesignFi"
+            href="https://t.me/DesignFiStudio"
             target="_blank"
             rel="noreferrer"
             className="hidden h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 sm:flex"
