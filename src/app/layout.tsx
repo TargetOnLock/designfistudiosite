@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { WalletContextProvider } from "@/components/wallet-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,13 +63,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-100`}
       >
-        <div className="relative flex min-h-screen flex-col overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(120,46,255,0.25),_transparent_60%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(14,165,233,0.12),_transparent_55%)]" />
-          <SiteHeader />
-          <main className="relative z-10 flex-1">{children}</main>
-          <SiteFooter />
-        </div>
+        <WalletContextProvider>
+          <div className="relative flex min-h-screen flex-col overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(120,46,255,0.25),_transparent_60%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(14,165,233,0.12),_transparent_55%)]" />
+            <SiteHeader />
+            <main className="relative z-10 flex-1">{children}</main>
+            <SiteFooter />
+          </div>
+        </WalletContextProvider>
       </body>
     </html>
   );
