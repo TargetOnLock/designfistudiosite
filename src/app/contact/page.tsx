@@ -5,6 +5,11 @@ const contactMethods = [
     href: "https://t.me/BlaineDesignFi",
   },
   {
+    label: "X (Twitter)",
+    detail: "@DesignFiStudio",
+    href: "https://x.com/DesignFiStudio",
+  },
+  {
     label: "Email",
     detail: "hello@designfi.studio",
     href: "mailto:hello@designfi.studio",
@@ -31,7 +36,7 @@ export default function ContactPage() {
           under 12 hours (faster via Telegram).
         </p>
       </div>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {contactMethods.map((method) => (
           <a
             key={method.label}

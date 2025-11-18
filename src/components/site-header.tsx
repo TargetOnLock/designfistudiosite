@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, Send, X } from "lucide-react";
+import { Menu, Send, Twitter, X } from "lucide-react";
 import logo from "@/../public/defistudio.png";
 
 const navItems = [
@@ -80,6 +80,15 @@ export function SiteHeader() {
             )}
           </button>
           <a
+            href="https://x.com/DesignFiStudio"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 sm:flex"
+            aria-label="DesignFi Studio on X (Twitter)"
+          >
+            <Twitter className="h-5 w-5" />
+          </a>
+          <a
             href="https://t.me/BlaineDesignFi"
             target="_blank"
             rel="noreferrer"
@@ -101,6 +110,15 @@ export function SiteHeader() {
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
             {renderNav()}
             <div className="flex flex-wrap gap-3">
+              <a
+                href="https://x.com/DesignFiStudio"
+                target="_blank"
+                rel="noreferrer"
+                className="flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white"
+              >
+                <Twitter className="h-4 w-4" />
+                X (Twitter)
+              </a>
               <a
                 href="https://t.me/BlaineDesignFi"
                 target="_blank"

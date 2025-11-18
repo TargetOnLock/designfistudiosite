@@ -48,10 +48,12 @@ export default function Home() {
               Elegant design systems and growth campaigns for ambitious brands.
             </h1>
             <p className="text-lg text-slate-300 md:text-xl">
-              DesignFi Studio blends agency polish with web-native instincts. We
-              build identities, ship high-performing websites, and ignite
-              communities for both traditional companies and crypto-native
-              teams.
+              DesignFi Studio is a hybrid Web2 & Web3 creative agency that blends
+              agency polish with web-native instincts. We build elegant design systems,
+              ship high-performing websites, and craft growth campaigns for ambitious
+              brands across both traditional companies and crypto-native teams. Our
+              creative agency approach delivers measurable results whether you&apos;re
+              launching an IRL business or a Web3 project.
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
@@ -124,6 +126,29 @@ export default function Home() {
           </div>
         ))}
       </section>
+      <section className="mx-auto w-full max-w-6xl px-4 pb-12">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+          <h2 className="text-2xl font-semibold text-white mb-4">
+            Why Choose DesignFi Studio as Your Creative Agency
+          </h2>
+          <p className="text-slate-300 mb-4">
+            As a hybrid Web2 & Web3 creative agency, DesignFi Studio understands
+            the unique challenges facing ambitious brands in both traditional and
+            crypto markets. Our elegant design systems are built to scale, while
+            our growth campaigns are data-driven and results-focused. Whether you&apos;re
+            a Web2 company looking to expand into Web3 or a crypto-native project
+            needing professional branding, we deliver creative solutions that work.
+          </p>
+          <p className="text-slate-300">
+            Our creative agency combines strategic thinking with execution excellence.
+            We&apos;ve helped over 120 IRL launches and 60+ Web3 campaigns succeed through
+            elegant design systems, comprehensive growth campaigns, and brand strategies
+            tailored to ambitious brands. From token launches to franchise rollouts,
+            DesignFi Studio is the creative agency partner that bridges Web2 expertise
+            with Web3 innovation.
+          </p>
+        </div>
+      </section>
       <section className="mx-auto w-full max-w-6xl px-4 pb-20">
         <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/80 to-slate-900/40 p-8 text-center shadow-[0_25px_70px_rgba(2,6,23,0.7)]">
           <p className="text-sm uppercase tracking-[0.3em] text-slate-300">
@@ -136,7 +161,8 @@ export default function Home() {
           <p className="mt-3 text-base text-slate-300">
             Start with a discovery sprint and leave with messaging, visual
             directions, and a go-to-market plan that bridges your real-world and
-            Web3 audiences.
+            Web3 audiences. Our creative agency delivers elegant design systems
+            and growth campaigns designed for ambitious brands ready to scale.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             <Link

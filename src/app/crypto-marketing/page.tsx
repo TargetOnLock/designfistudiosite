@@ -195,7 +195,7 @@ export default function CryptoMarketingPage() {
           Ready to Promote Your Token or Web3 Brand?
         </h2>
         <p className="mt-3 text-slate-50">
-          Choose how to reach us: DM on Telegram (fastest), email, or drop a
+          Choose how to reach us: DM on Telegram (fastest), X (Twitter), email, or drop a
           note via the website contact form.
         </p>
         <div className="mt-6 flex flex-wrap gap-4">
@@ -206,6 +206,14 @@ export default function CryptoMarketingPage() {
             className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900"
           >
             DM on Telegram
+          </a>
+          <a
+            href="https://x.com/DesignFiStudio"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/60 px-6 py-3 text-sm font-semibold text-white"
+          >
+            X (Twitter)
           </a>
           <a
             href="mailto:hello@designfi.studio"

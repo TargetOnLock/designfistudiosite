@@ -20,6 +20,7 @@ const footerLinks = [
   {
     title: "Connect",
     items: [
+      { label: "X (Twitter)", href: "https://x.com/DesignFiStudio" },
       { label: "Telegram", href: "https://t.me/BlaineDesignFi" },
       { label: "Email", href: "mailto:hello@designfi.studio" },
       { label: "Contact", href: "/contact" },

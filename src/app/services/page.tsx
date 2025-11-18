@@ -87,6 +87,14 @@ export default function ServicesPage() {
             Email the studio
           </a>
           <a
+            href="https://x.com/DesignFiStudio"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white"
+          >
+            X (Twitter)
+          </a>
+          <a
             href="https://t.me/BlaineDesignFi"
             target="_blank"
             rel="noreferrer"
