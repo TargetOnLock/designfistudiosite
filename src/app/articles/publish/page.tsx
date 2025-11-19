@@ -7,6 +7,23 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
+// Phantom wallet provider type
+interface PhantomProvider {
+  signAndSendTransaction: (transaction: Transaction) => Promise<{ signature: string }>;
+  isPhantom?: boolean;
+}
+
+// Helper to get Phantom provider
+function getProvider(): PhantomProvider | null {
+  if (typeof window !== "undefined" && "solana" in window) {
+    const provider = (window as any).solana;
+    if (provider?.isPhantom) {
+      return provider as PhantomProvider;
+    }
+  }
+  return null;
+}
+
 const MAX_CHARACTERS = 3000;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -171,7 +188,6 @@ export default function PublishPage() {
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = publicKey;
 
-      // Send transaction - the wallet adapter will sign it
       console.log("Sending transaction...", {
         from: publicKey.toString(),
         to: merchantPublicKey.toString(),
@@ -179,16 +195,47 @@ export default function PublishPage() {
         lamports,
       });
 
-      const signature = await sendTransaction(transaction, connection, {
-        skipPreflight: false,
-        preflightCommitment: "confirmed",
-      });
-      
-      console.log("Transaction sent, signature:", signature);
+      let signature: string;
 
-      // Wait for confirmation with timeout
+      // Use Phantom's native API if available (more secure, avoids "possibly malicious" warning)
+      const phantomProvider = getProvider();
+      if (phantomProvider && phantomProvider.isPhantom) {
+        try {
+          console.log("Using Phantom's native signAndSendTransaction API");
+          const result = await phantomProvider.signAndSendTransaction(transaction);
+          signature = result.signature;
+          console.log("Transaction sent via Phantom, signature:", signature);
+        } catch (error) {
+          console.error("Phantom native API failed, falling back to wallet adapter:", error);
+          // Fallback to wallet adapter method
+          signature = await sendTransaction(transaction, connection, {
+            skipPreflight: false,
+            preflightCommitment: "confirmed",
+          });
+          console.log("Transaction sent via wallet adapter, signature:", signature);
+        }
+      } else {
+        // Use wallet adapter for other wallets (Solflare, etc.)
+        console.log("Using wallet adapter sendTransaction");
+        signature = await sendTransaction(transaction, connection, {
+          skipPreflight: false,
+          preflightCommitment: "confirmed",
+        });
+        console.log("Transaction sent, signature:", signature);
+      }
+
+      // Wait for confirmation using Phantom's recommended method
+      console.log("Waiting for transaction confirmation...");
       const confirmation = await Promise.race([
-        connection.confirmTransaction(signature, "confirmed"),
+        (async () => {
+          // Poll for signature status (Phantom's recommended approach)
+          let status = await connection.getSignatureStatus(signature);
+          while (!status.value || (status.value.confirmationStatus !== "confirmed" && status.value.confirmationStatus !== "finalized")) {
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+            status = await connection.getSignatureStatus(signature);
+          }
+          return status;
+        })(),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error("Transaction confirmation timeout")), 60000)
         ),
