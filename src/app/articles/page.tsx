@@ -121,9 +121,10 @@ export default function ArticlesPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (
-            <article
+            <Link
               key={article.id}
-              className="group rounded-3xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition"
+              href={`/articles/${article.id}`}
+              className="group rounded-3xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition block"
             >
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
@@ -137,7 +138,7 @@ export default function ArticlesPage() {
 
               {/* Content */}
               <div className="p-6">
-                <h2 className="text-xl font-semibold text-white mb-2 line-clamp-2">
+                <h2 className="text-xl font-semibold text-white mb-2 line-clamp-2 group-hover:text-violet-300 transition">
                   {article.title}
                 </h2>
                 <p className="text-sm text-slate-300 mb-4 line-clamp-3">
@@ -152,13 +153,17 @@ export default function ArticlesPage() {
 
                 {/* Links */}
                 {(article.telegramLink || article.twitterLink || article.websiteLink) && (
-                  <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+                  <div 
+                    className="flex items-center gap-3 pt-4 border-t border-white/10"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {article.telegramLink && (
                       <a
                         href={article.telegramLink}
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Send className="h-3 w-3" />
                         Telegram
@@ -170,6 +175,7 @@ export default function ArticlesPage() {
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Twitter className="h-3 w-3" />
                         Twitter
@@ -181,6 +187,7 @@ export default function ArticlesPage() {
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <ExternalLink className="h-3 w-3" />
                         Website
@@ -189,7 +196,7 @@ export default function ArticlesPage() {
                   </div>
                 )}
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       )}
