@@ -22,7 +22,7 @@ const footerLinks = [
     items: [
       { label: "X (Twitter)", href: "https://x.com/DesignFiStudio" },
       { label: "Telegram", href: "https://t.me/DesignFiStudio" },
-      { label: "Email", href: "mailto:hello@designfi.studio" },
+      { label: "Email", href: "mailto:blaine@designfi.studio" },
       { label: "Contact", href: "/contact" },
     ],
   },

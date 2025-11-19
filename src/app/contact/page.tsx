@@ -1,8 +1,8 @@
 const contactMethods = [
   {
     label: "Telegram (Fastest)",
-    detail: "@DesignFiStudio",
-    href: "https://t.me/DesignFiStudio",
+    detail: "@BlaineDesignFi",
+    href: "https://t.me/BlaineDesignFi",
   },
   {
     label: "X (Twitter)",
@@ -11,13 +11,8 @@ const contactMethods = [
   },
   {
     label: "Email",
-    detail: "hello@designfi.studio",
-    href: "mailto:hello@designfi.studio",
-  },
-  {
-    label: "Contact Form",
-    detail: "Share your goals, timeline, and links.",
-    href: "#contact-form",
+    detail: "blaine@designfi.studio",
+    href: "mailto:blaine@designfi.studio",
   },
 ];
 
@@ -33,15 +28,17 @@ export default function ContactPage() {
         </h1>
         <p className="text-lg text-slate-300">
           Tell us about your brand, launch date, and target metrics. We reply in
-          under 12 hours (faster via Telegram).
+          under 12 hours (fastest via Telegram).
         </p>
       </div>
-      <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-10 grid gap-6 md:grid-cols-3">
         {contactMethods.map((method) => (
           <a
             key={method.label}
             href={method.href}
-            className="rounded-3xl border border-white/10 bg-white/5 p-6"
+            target={method.href.startsWith("http") ? "_blank" : undefined}
+            rel={method.href.startsWith("http") ? "noreferrer" : undefined}
+            className="rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:border-white/20 hover:bg-white/10"
           >
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
               {method.label}
@@ -50,50 +47,10 @@ export default function ContactPage() {
               {method.detail}
             </p>
             <p className="mt-3 text-sm text-slate-300">
-              Tap to {method.label === "Contact Form" ? "open form" : "connect"}
+              Tap to connect
             </p>
           </a>
         ))}
-      </div>
-      <div
-        id="contact-form"
-        className="mt-12 rounded-3xl border border-white/10 bg-white/5 p-8"
-      >
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-300">
-          Contact Form
-        </p>
-        <form className="mt-6 grid gap-4 md:grid-cols-2">
-          <input
-            type="text"
-            placeholder="Full name"
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-white/50 focus:outline-none md:col-span-1"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-white/50 focus:outline-none md:col-span-1"
-          />
-          <input
-            type="text"
-            placeholder="Company / Project"
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-white/50 focus:outline-none md:col-span-2"
-          />
-          <textarea
-            placeholder="What are you building? Include launch timeline + links."
-            rows={4}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-white/50 focus:outline-none md:col-span-2"
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 md:col-span-2"
-          >
-            Send message
-          </button>
-        </form>
-        <p className="mt-4 text-xs text-slate-500">
-          *Form is decorative. Connect via Telegram or email for an immediate
-          reply.
-        </p>
       </div>
     </div>
   );
