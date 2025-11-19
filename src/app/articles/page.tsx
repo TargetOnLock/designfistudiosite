@@ -127,12 +127,12 @@ export default function ArticlesPage() {
               className="group rounded-3xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition block"
             >
               {/* Image */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-48 overflow-hidden bg-slate-900/50 flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={article.image}
                   alt={article.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
 

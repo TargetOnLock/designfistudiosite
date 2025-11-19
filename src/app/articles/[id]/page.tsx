@@ -26,13 +26,10 @@ export default function ArticlePage() {
   useEffect(() => {
     const loadArticle = async () => {
       try {
-        const response = await fetch("/api/articles");
+        const response = await fetch(`/api/articles?id=${params.id}`);
         if (response.ok) {
-          const articles = await response.json();
-          const foundArticle = articles.find(
-            (a: Article) => a.id === params.id
-          );
-          if (foundArticle) {
+          const foundArticle = await response.json();
+          if (foundArticle && !foundArticle.error) {
             setArticle(foundArticle);
           } else {
             setNotFound(true);
@@ -96,12 +93,12 @@ export default function ArticlePage() {
       <article className="rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
         {/* Featured Image */}
         {article.image && (
-          <div className="relative w-full h-96 overflow-hidden">
+          <div className="relative w-full min-h-96 max-h-[600px] overflow-hidden bg-slate-900/50 flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={article.image}
               alt={article.title}
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-full w-auto h-auto object-contain"
             />
           </div>
         )}
