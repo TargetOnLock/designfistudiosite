@@ -1,37 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, readFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
 
-const ARTICLES_FILE = path.join(process.cwd(), "data", "articles.json");
-
-// Ensure data directory exists
-async function ensureDataDir() {
-  const dataDir = path.dirname(ARTICLES_FILE);
-  if (!existsSync(dataDir)) {
-    await mkdir(dataDir, { recursive: true });
-  }
-}
+// In-memory store for serverless environments (resets on deployment)
+// For production, use a database like Supabase, MongoDB, or Vercel KV
+const articlesStore: Array<{
+  id: string;
+  title: string;
+  content: string;
+  image: string;
+  telegramLink?: string;
+  twitterLink?: string;
+  websiteLink?: string;
+  publishedAt: string;
+  author: string;
+}> = [];
 
 // GET - Fetch all articles
 export async function GET() {
   try {
-    await ensureDataDir();
-    
-    if (!existsSync(ARTICLES_FILE)) {
-      return NextResponse.json([]);
-    }
-
-    const fileContent = await readFile(ARTICLES_FILE, "utf-8");
-    const articles = JSON.parse(fileContent) as Array<{ publishedAt: string }>;
-    
     // Sort by published date (newest first)
-    articles.sort((a, b) => 
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    const sortedArticles = [...articlesStore].sort(
+      (a, b) =>
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     );
 
-    return NextResponse.json(articles);
+    return NextResponse.json(sortedArticles);
   } catch (error) {
     console.error("Error reading articles:", error);
     return NextResponse.json(
@@ -45,50 +38,42 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     console.log("POST /api/articles - Starting...");
-    await ensureDataDir();
-    console.log("Data directory ensured");
 
     const article = await request.json();
-    console.log("Article received:", { 
-      title: article.title, 
+    console.log("Article received:", {
+      title: article.title,
       contentLength: article.content?.length,
       hasImage: !!article.image,
-      imageSize: article.image ? article.image.length : 0 
+      imageSize: article.image ? article.image.length : 0,
     });
 
     // Validate required fields
     if (!article.title || !article.content || !article.image) {
-      console.error("Missing required fields:", { 
-        hasTitle: !!article.title, 
-        hasContent: !!article.content, 
-        hasImage: !!article.image 
+      console.error("Missing required fields:", {
+        hasTitle: !!article.title,
+        hasContent: !!article.content,
+        hasImage: !!article.image,
       });
       return NextResponse.json(
-        { error: "Missing required fields", details: "Title, content, and image are required" },
+        {
+          error: "Missing required fields",
+          details: "Title, content, and image are required",
+        },
         { status: 400 }
       );
     }
 
-    // Read existing articles
-    let articles = [];
-    if (existsSync(ARTICLES_FILE)) {
-      const fileContent = await readFile(ARTICLES_FILE, "utf-8");
-      articles = JSON.parse(fileContent);
-    }
-
-    // Add new article
+    // Create new article
     const newArticle = {
       ...article,
       id: article.id || randomUUID(),
       publishedAt: article.publishedAt || new Date().toISOString(),
     };
 
-    articles.unshift(newArticle); // Add to beginning
-
-    // Save back to file
-    console.log("Writing to file:", ARTICLES_FILE);
-    await writeFile(ARTICLES_FILE, JSON.stringify(articles, null, 2), "utf-8");
-    console.log("File written successfully");
+    // Add to store
+    articlesStore.unshift(newArticle);
+    console.log("Article saved successfully:", newArticle.id);
+    console.log("Total articles in store:", articlesStore.length);
 
     return NextResponse.json(newArticle, { status: 201 });
   } catch (error) {
@@ -100,4 +85,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
