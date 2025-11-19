@@ -1,3 +1,6 @@
+import Image from "next/image";
+import profilePic from "@/../public/pic.jpg";
+
 const pillars = [
   {
     title: "Hybrid mindset",
@@ -45,6 +48,40 @@ export default function AboutPage() {
           </div>
         ))}
       </div>
+      
+      {/* Owner/CEO Profile */}
+      <div className="mt-12 rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="relative w-48 h-48 md:w-56 md:h-56 flex-shrink-0 mx-auto md:mx-0">
+            <Image
+              src={profilePic}
+              alt="Blaine Powers"
+              fill
+              className="rounded-2xl object-cover border-2 border-white/20"
+              sizes="(max-width: 768px) 192px, 224px"
+            />
+          </div>
+          <div className="flex-1 space-y-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-slate-400 mb-2">
+                Owner & CEO
+              </p>
+              <h2 className="text-3xl font-semibold text-white">
+                Blaine Powers
+              </h2>
+            </div>
+            <div className="space-y-3 text-slate-300">
+              <p>
+                With a degree in Digital Marketing, Blaine brings a strategic and data-driven approach to every project at DesignFi Studio. His expertise bridges the gap between traditional marketing principles and cutting-edge Web3 strategies.
+              </p>
+              <p>
+                Family-oriented and deeply dedicated to his work, Blaine leads the studio with a commitment to excellence and a focus on building lasting relationships with clients. His vision drives DesignFi Studio's mission to deliver measurable results for both Web2 and Web3 brands.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-12 rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/80 to-slate-900/40 p-8">
         <h2 className="text-2xl font-semibold text-white">
           Mission & Values
