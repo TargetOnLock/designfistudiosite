@@ -13,7 +13,11 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp
 const RECOMMENDED_IMAGE_SIZE = "1200x630px";
 const PUBLICATION_COST_USD = 100;
 const MERCHANT_WALLET = "DA7GPnpyxVkL7Lfc3vnRw1bz9XGbSAiTs7Z2GEGanvWj";
-const DEV_WALLET = "DA7GPnpyxVkL7Lfc3vnRw1bz9XGbSAiTs7Z2GEGanvWj"; // Dev wallet gets free publishing
+// Wallets that get free publishing
+const FREE_PUBLISHING_WALLETS = [
+  "DA7GPnpyxVkL7Lfc3vnRw1bz9XGbSAiTs7Z2GEGanvWj", // Dev wallet
+  "5kPWDedQYWuXkjLwZcfk9RYp6Vg9oXbqwEvaXDdDUj5J", // Additional free wallet
+];
 
 export default function PublishPage() {
   const router = useRouter();
@@ -34,8 +38,8 @@ export default function PublishPage() {
   const [solAmount, setSolAmount] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Check if connected wallet is the dev wallet
-  const isDevWallet = publicKey?.toString() === DEV_WALLET;
+  // Check if connected wallet gets free publishing
+  const isFreeWallet = publicKey ? FREE_PUBLISHING_WALLETS.includes(publicKey.toString()) : false;
 
   // Fetch SOL price and calculate amount
   useEffect(() => {
@@ -103,9 +107,9 @@ export default function PublishPage() {
       return;
     }
 
-    // If dev wallet, just confirm and skip payment
-    if (isDevWallet) {
-      const confirmed = window.confirm("Confirm you want to publish this article? (Free for dev wallet)");
+    // If free wallet, just confirm and skip payment
+    if (isFreeWallet) {
+      const confirmed = window.confirm("Confirm you want to publish this article? (Free publishing)");
       if (confirmed) {
         setIsPaid(true);
         setPaymentStatus("success");
@@ -318,17 +322,17 @@ export default function PublishPage() {
         {/* Payment Section */}
         {!isPaid ? (
           <div className={`rounded-3xl border p-8 ${
-            isDevWallet 
+            isFreeWallet 
               ? "border-emerald-400/40 bg-gradient-to-r from-emerald-600/40 via-teal-600/30 to-slate-900/50" 
               : "border-violet-400/40 bg-gradient-to-r from-violet-600/40 via-fuchsia-600/30 to-slate-900/50"
           }`}>
             <h3 className="text-xl font-semibold text-white mb-2">
-              {isDevWallet ? "Dev Wallet Detected" : "Payment Required"}
+              {isFreeWallet ? "Free Publishing Enabled" : "Payment Required"}
             </h3>
             <p className="text-slate-200 mb-4">
-              {isDevWallet ? (
+              {isFreeWallet ? (
                 <>
-                  Publishing is free for the dev wallet. Confirm to proceed with publishing.
+                  Publishing is free for this wallet. Confirm to proceed with publishing.
                   {!connected && " Connect your wallet to proceed."}
                 </>
               ) : (
@@ -350,7 +354,7 @@ export default function PublishPage() {
                 </>
               ) : !connected ? (
                 "Connect Wallet"
-              ) : isDevWallet ? (
+              ) : isFreeWallet ? (
                 "Confirm & Publish (Free)"
               ) : (
                 `Pay ${solAmount ? `${solAmount.toFixed(4)} SOL` : ""} ($${PUBLICATION_COST_USD} USD)`
@@ -364,7 +368,7 @@ export default function PublishPage() {
             {connected && publicKey && (
               <p className="mt-2 text-xs text-slate-300">
                 Connected: {publicKey.toString().slice(0, 4)}...{publicKey.toString().slice(-4)}
-                {isDevWallet && " (Dev Wallet - Free Publishing)"}
+                {isFreeWallet && " (Free Publishing)"}
               </p>
             )}
           </div>
