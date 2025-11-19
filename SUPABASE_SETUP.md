@@ -53,6 +53,8 @@ CREATE POLICY "Anyone can insert articles" ON articles
 
 ## Step 4: Add Environment Variables
 
+### For Local Development
+
 Add these to your `.env.local` file:
 
 ```env
@@ -60,11 +62,34 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 ```
 
-## Step 5: Deploy
+### For Vercel Deployment
 
-After adding the environment variables:
-- If using Vercel: Add them in your Vercel project settings under Environment Variables
-- If deploying elsewhere: Make sure to set these environment variables in your hosting platform
+1. Go to your Vercel project dashboard
+2. Click on **Settings** → **Environment Variables**
+3. Add the following two variables:
+
+   **Variable 1:**
+   - **Key:** `NEXT_PUBLIC_SUPABASE_URL`
+   - **Value:** Your Supabase Project URL (from Step 3)
+   - **Environment:** Select all (Production, Preview, Development)
+
+   **Variable 2:**
+   - **Key:** `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - **Value:** Your Supabase anon/public key (from Step 3)
+   - **Environment:** Select all (Production, Preview, Development)
+
+4. Click **Save** for each variable
+5. **Important:** After adding the variables, you need to redeploy:
+   - Go to **Deployments** tab
+   - Click the **⋯** (three dots) on your latest deployment
+   - Click **Redeploy** (or push a new commit to trigger a new deployment)
+
+## Step 5: Verify
+
+After redeploying, your articles should now persist across deployments. You can test by:
+1. Publishing a new article
+2. Waiting for deployment to complete
+3. Refreshing the page - the article should still be there
 
 ## Notes
 

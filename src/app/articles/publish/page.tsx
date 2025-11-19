@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, X as XIcon, Loader2, CheckCircle2 } from "lucide-react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 const MAX_CHARACTERS = 3000;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -22,6 +22,7 @@ const FREE_PUBLISHING_WALLETS = [
 export default function PublishPage() {
   const router = useRouter();
   const { publicKey, sendTransaction, connected } = useWallet();
+  const { connection } = useConnection();
   const { setVisible } = useWalletModal();
   
   const [title, setTitle] = useState("");
@@ -126,11 +127,17 @@ export default function PublishPage() {
     setPaymentStatus("pending");
 
     try {
-      const connection = new Connection("https://api.mainnet-beta.solana.com", "confirmed");
+      // Use the connection from wallet context (better for rate limits)
       const merchantPublicKey = new PublicKey(MERCHANT_WALLET);
       
-      // Convert SOL to lamports
-      const lamports = Math.floor(solAmount * LAMPORTS_PER_SOL);
+      // Convert SOL to lamports (ensure minimum 1 lamport)
+      const lamports = Math.max(1, Math.floor(solAmount * LAMPORTS_PER_SOL));
+
+      // Check if user has enough balance
+      const balance = await connection.getBalance(publicKey);
+      if (balance < lamports) {
+        throw new Error(`Insufficient balance. You need at least ${solAmount.toFixed(4)} SOL (plus transaction fees).`);
+      }
 
       // Create transaction
       const transaction = new Transaction().add(
@@ -141,16 +148,43 @@ export default function PublishPage() {
         })
       );
 
-      // Get recent blockhash
-      const { blockhash } = await connection.getLatestBlockhash();
+      // Get recent blockhash with retry
+      let blockhash;
+      try {
+        const { blockhash: bh } = await connection.getLatestBlockhash("confirmed");
+        blockhash = bh;
+      } catch (error) {
+        console.error("Error getting blockhash:", error);
+        throw new Error("Failed to connect to Solana network. Please try again.");
+      }
+
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = publicKey;
 
-      // Send transaction
-      const signature = await sendTransaction(transaction, connection);
+      // Send transaction - the wallet adapter will sign it
+      console.log("Sending transaction...", {
+        from: publicKey.toString(),
+        to: merchantPublicKey.toString(),
+        amount: solAmount,
+        lamports,
+      });
+
+      const signature = await sendTransaction(transaction, connection, {
+        skipPreflight: false,
+        preflightCommitment: "confirmed",
+      });
       
-      // Wait for confirmation
-      await connection.confirmTransaction(signature, "confirmed");
+      console.log("Transaction sent, signature:", signature);
+
+      // Wait for confirmation with timeout
+      const confirmation = await Promise.race([
+        connection.confirmTransaction(signature, "confirmed"),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Transaction confirmation timeout")), 60000)
+        ),
+      ]);
+
+      console.log("Transaction confirmed:", confirmation);
 
       setPaymentStatus("success");
       setIsPaid(true);
@@ -158,10 +192,18 @@ export default function PublishPage() {
       console.error("Payment error:", error);
       setPaymentStatus("error");
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes("User rejected")) {
-        alert("Payment was cancelled.");
+      
+      // Better error messages
+      if (errorMessage.includes("User rejected") || errorMessage.includes("User cancelled")) {
+        alert("Payment was cancelled. Please try again when ready.");
+      } else if (errorMessage.includes("Insufficient balance")) {
+        alert(errorMessage);
+      } else if (errorMessage.includes("timeout")) {
+        alert("Transaction is taking longer than expected. Please check your wallet to see if the payment went through.");
+      } else if (errorMessage.includes("network") || errorMessage.includes("connection")) {
+        alert("Network error. Please check your internet connection and try again.");
       } else {
-        alert("Payment failed. Please try again.");
+        alert(`Payment failed: ${errorMessage}. Please try again or contact support if the issue persists.`);
       }
     }
   };
