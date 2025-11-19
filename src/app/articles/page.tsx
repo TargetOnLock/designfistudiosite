@@ -17,38 +17,59 @@ interface Article {
 }
 
 export default function ArticlesPage() {
-  // Load articles from localStorage (in production, this would be from a database)
-  const loadArticles = (): Article[] => {
-    if (typeof window === "undefined") return [];
-    const storedArticles = localStorage.getItem("publishedArticles");
-    if (storedArticles) {
-      try {
-        return JSON.parse(storedArticles);
-      } catch (error) {
-        console.error("Error loading articles:", error);
-        return [];
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadArticles = async () => {
+    try {
+      const response = await fetch("/api/articles");
+      if (response.ok) {
+        const data = await response.json();
+        setArticles(data);
+      } else {
+        console.error("Failed to load articles");
+        // Fallback to localStorage if API fails
+        if (typeof window !== "undefined") {
+          const storedArticles = localStorage.getItem("publishedArticles");
+          if (storedArticles) {
+            try {
+              setArticles(JSON.parse(storedArticles));
+            } catch (error) {
+              console.error("Error loading from localStorage:", error);
+            }
+          }
+        }
       }
+    } catch (error) {
+      console.error("Error loading articles:", error);
+      // Fallback to localStorage
+      if (typeof window !== "undefined") {
+        const storedArticles = localStorage.getItem("publishedArticles");
+        if (storedArticles) {
+          try {
+            setArticles(JSON.parse(storedArticles));
+          } catch (e) {
+            console.error("Error loading from localStorage:", e);
+          }
+        }
+      }
+    } finally {
+      setIsLoading(false);
     }
-    return [];
   };
 
-  const [articles, setArticles] = useState<Article[]>(loadArticles);
-
   useEffect(() => {
-    // Refresh articles when storage changes or custom event fires
-    const handleStorageChange = () => {
-      setArticles(loadArticles());
+    loadArticles();
+    
+    // Listen for custom event when article is published
+    const handleArticlePublished = () => {
+      loadArticles();
     };
     
-    // Listen for storage events (when articles are published from another tab)
-    window.addEventListener("storage", handleStorageChange);
-    
-    // Listen for custom event when article is published on same page
-    window.addEventListener("articlePublished", handleStorageChange);
+    window.addEventListener("articlePublished", handleArticlePublished);
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("articlePublished", handleStorageChange);
+      window.removeEventListener("articlePublished", handleArticlePublished);
     };
   }, []);
 
@@ -75,7 +96,13 @@ export default function ArticlesPage() {
         </Link>
       </div>
 
-      {articles.length === 0 ? (
+      {isLoading ? (
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
+          <p className="text-xl font-semibold text-white mb-2">
+            Loading articles...
+          </p>
+        </div>
+      ) : articles.length === 0 ? (
         <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
           <p className="text-xl font-semibold text-white mb-2">
             No articles published yet

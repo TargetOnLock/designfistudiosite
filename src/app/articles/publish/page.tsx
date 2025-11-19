@@ -201,10 +201,23 @@ export default function PublishPage() {
         author: publicKey ? `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}` : "Anonymous",
       };
 
-      // Save to localStorage (in production, save to database)
+      // Save to API (which stores on server)
+      const response = await fetch("/api/articles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newArticle),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save article");
+      }
+
+      // Also save to localStorage as backup
       const existingArticles = localStorage.getItem("publishedArticles");
       const articles = existingArticles ? JSON.parse(existingArticles) : [];
-      articles.unshift(newArticle); // Add to beginning
+      articles.unshift(newArticle);
       localStorage.setItem("publishedArticles", JSON.stringify(articles));
 
       // Dispatch custom event to notify articles page
