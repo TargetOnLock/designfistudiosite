@@ -133,9 +133,19 @@ export default function PublishPage() {
       // Convert SOL to lamports (ensure minimum 1 lamport)
       const lamports = Math.max(1, Math.floor(solAmount * LAMPORTS_PER_SOL));
 
-      // Check if user has enough balance
-      const balance = await connection.getBalance(publicKey);
-      if (balance < lamports) {
+      // Check if user has enough balance (with error handling for RPC issues)
+      let balance;
+      try {
+        balance = await connection.getBalance(publicKey);
+      } catch (balanceError) {
+        console.error("Error checking balance:", balanceError);
+        // If balance check fails, we'll still try the transaction (wallet will reject if insufficient)
+        // But warn the user
+        console.warn("Could not verify balance, proceeding with transaction...");
+        balance = 0; // Set to 0 so we skip the check
+      }
+      
+      if (balance > 0 && balance < lamports) {
         throw new Error(`Insufficient balance. You need at least ${solAmount.toFixed(4)} SOL (plus transaction fees).`);
       }
 
