@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, readFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
+import { randomUUID } from "crypto";
 
 const ARTICLES_FILE = path.join(process.cwd(), "data", "articles.json");
 
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Add new article
     const newArticle = {
       ...article,
-      id: article.id || crypto.randomUUID(),
+      id: article.id || randomUUID(),
       publishedAt: article.publishedAt || new Date().toISOString(),
     };
 
@@ -77,8 +78,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newArticle, { status: 201 });
   } catch (error) {
     console.error("Error saving article:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to save article" },
+      { error: "Failed to save article", details: errorMessage },
       { status: 500 }
     );
   }

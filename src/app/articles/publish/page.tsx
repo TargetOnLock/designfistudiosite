@@ -211,7 +211,10 @@ export default function PublishPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save article");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || "Failed to save article";
+        const errorDetails = errorData.details ? `: ${errorData.details}` : "";
+        throw new Error(`${errorMessage}${errorDetails}`);
       }
 
       // Also save to localStorage as backup
@@ -227,7 +230,8 @@ export default function PublishPage() {
       router.push("/articles");
     } catch (error) {
       console.error("Error publishing article:", error);
-      alert("Failed to publish article. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      alert(`Failed to publish article: ${errorMessage}`);
       setIsPublishing(false);
     }
   };
