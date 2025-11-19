@@ -95,12 +95,12 @@ export default function ServicesPage() {
             X (Twitter)
           </a>
           <a
-            href="https://t.me/BlaineDesignFi"
+            href="https://t.me/DesignFiStudio"
             target="_blank"
             rel="noreferrer"
             className="rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white"
           >
-            DM on Telegram
+            Join Telegram Channel
           </a>
         </div>
       </div>

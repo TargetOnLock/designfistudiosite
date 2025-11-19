@@ -200,12 +200,12 @@ export default function CryptoMarketingPage() {
         </p>
         <div className="mt-6 flex flex-wrap gap-4">
           <a
-            href="https://t.me/BlaineDesignFi"
+            href="https://t.me/DesignFiStudio"
             target="_blank"
             rel="noreferrer"
             className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900"
           >
-            DM on Telegram
+            Join Telegram Channel
           </a>
           <a
             href="https://x.com/DesignFiStudio"

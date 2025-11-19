@@ -1,8 +1,8 @@
 const contactMethods = [
   {
     label: "Telegram (Fastest)",
-    detail: "@BlaineDesignFi",
-    href: "https://t.me/BlaineDesignFi",
+    detail: "@DesignFiStudio",
+    href: "https://t.me/DesignFiStudio",
   },
   {
     label: "X (Twitter)",

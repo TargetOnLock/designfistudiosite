@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Send, Linkedin } from "lucide-react";
 import profilePic from "@/../public/pic.jpg";
 
 const pillars = [
@@ -77,6 +78,26 @@ export default function AboutPage() {
               <p>
                 Family-oriented and deeply dedicated to his work, Blaine leads the studio with a commitment to excellence and a focus on building lasting relationships with clients. His vision drives DesignFi Studio's mission to deliver measurable results for both Web2 and Web3 brands.
               </p>
+            </div>
+            <div className="flex flex-wrap gap-3 pt-4">
+              <a
+                href="https://t.me/BlaineDesignFi"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/10"
+              >
+                <Send className="h-4 w-4" />
+                Telegram (DM)
+              </a>
+              <a
+                href="https://www.linkedin.com/in/blaine-powers/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/10"
+              >
+                <Linkedin className="h-4 w-4" />
+                LinkedIn
+              </a>
             </div>
           </div>
         </div>

@@ -119,15 +119,15 @@ export function SiteHeader() {
                 <Twitter className="h-4 w-4" />
                 X (Twitter)
               </a>
-              <a
-                href="https://t.me/BlaineDesignFi"
-                target="_blank"
-                rel="noreferrer"
-                className="flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white"
-              >
-                <Send className="h-4 w-4" />
-                Telegram
-              </a>
+                  <a
+                    href="https://t.me/DesignFiStudio"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white"
+                  >
+                    <Send className="h-4 w-4" />
+                    Telegram
+                  </a>
               <Link
                 href="/contact"
                 className="flex flex-1 min-w-[140px] items-center justify-center rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-sm font-semibold text-white"

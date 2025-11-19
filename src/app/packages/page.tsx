@@ -133,7 +133,7 @@ export default function PackagesPage() {
             X (Twitter)
           </a>
           <a
-            href="https://t.me/BlaineDesignFi"
+            href="https://t.me/DesignFiStudio"
             target="_blank"
             rel="noreferrer"
             className="rounded-full border border-white/40 px-6 py-3 font-semibold text-white"
