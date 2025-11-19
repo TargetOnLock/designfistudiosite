@@ -202,6 +202,8 @@ export default function PublishPage() {
       };
 
       // Save to API (which stores on server)
+      console.log("Saving article to API...", { title: newArticle.title, hasImage: !!newArticle.image });
+      
       const response = await fetch("/api/articles", {
         method: "POST",
         headers: {
@@ -210,12 +212,23 @@ export default function PublishPage() {
         body: JSON.stringify(newArticle),
       });
 
+      console.log("API response status:", response.status, response.statusText);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+        }
         const errorMessage = errorData.error || "Failed to save article";
         const errorDetails = errorData.details ? `: ${errorData.details}` : "";
+        console.error("API error:", errorData);
         throw new Error(`${errorMessage}${errorDetails}`);
       }
+
+      const savedArticle = await response.json();
+      console.log("Article saved successfully:", savedArticle.id);
 
       // Also save to localStorage as backup
       const existingArticles = localStorage.getItem("publishedArticles");

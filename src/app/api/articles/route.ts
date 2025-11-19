@@ -44,14 +44,27 @@ export async function GET() {
 // POST - Save a new article
 export async function POST(request: NextRequest) {
   try {
+    console.log("POST /api/articles - Starting...");
     await ensureDataDir();
+    console.log("Data directory ensured");
 
     const article = await request.json();
+    console.log("Article received:", { 
+      title: article.title, 
+      contentLength: article.content?.length,
+      hasImage: !!article.image,
+      imageSize: article.image ? article.image.length : 0 
+    });
 
     // Validate required fields
     if (!article.title || !article.content || !article.image) {
+      console.error("Missing required fields:", { 
+        hasTitle: !!article.title, 
+        hasContent: !!article.content, 
+        hasImage: !!article.image 
+      });
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields", details: "Title, content, and image are required" },
         { status: 400 }
       );
     }
@@ -73,7 +86,9 @@ export async function POST(request: NextRequest) {
     articles.unshift(newArticle); // Add to beginning
 
     // Save back to file
+    console.log("Writing to file:", ARTICLES_FILE);
     await writeFile(ARTICLES_FILE, JSON.stringify(articles, null, 2), "utf-8");
+    console.log("File written successfully");
 
     return NextResponse.json(newArticle, { status: 201 });
   } catch (error) {
