@@ -20,9 +20,9 @@ export function WalletContextProvider({ children }: { children: ReactNode }) {
       return process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
     }
     
-    // Use a more reliable public RPC endpoint (Helius public endpoint)
-    // You can also use: https://api.mainnet-beta.solana.com (but it has rate limits)
-    // Or get a free RPC from: https://www.helius.dev/ (free tier available)
+    // Use a more reliable public RPC endpoint
+    // Ankr's public endpoint is generally more reliable than the default Solana one
+    // If issues persist, get a free RPC from: https://www.helius.dev/ or https://www.quicknode.com/
     return "https://rpc.ankr.com/solana";
   }, []);
 

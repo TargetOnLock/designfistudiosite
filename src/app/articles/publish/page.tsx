@@ -210,8 +210,19 @@ export default function PublishPage() {
         alert(errorMessage);
       } else if (errorMessage.includes("timeout")) {
         alert("Transaction is taking longer than expected. Please check your wallet to see if the payment went through.");
-      } else if (errorMessage.includes("network") || errorMessage.includes("connection")) {
-        alert("Network error. Please check your internet connection and try again.");
+      } else if (
+        errorMessage.includes("network") || 
+        errorMessage.includes("connection") || 
+        errorMessage.includes("403") ||
+        errorMessage.includes("Forbidden") ||
+        errorMessage.includes("fetch") ||
+        errorMessage.includes("Failed to fetch")
+      ) {
+        alert(
+          "Network/RPC error. This might be due to RPC endpoint issues. " +
+          "Please try again in a moment, or contact support if the issue persists. " +
+          "Error: " + errorMessage
+        );
       } else {
         alert(`Payment failed: ${errorMessage}. Please try again or contact support if the issue persists.`);
       }
