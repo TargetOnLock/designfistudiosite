@@ -34,8 +34,7 @@ export default function AboutPage() {
         <p className="text-lg text-slate-300">
           We believe brand love and token momentum come from the same place:
           clear positioning, beautiful execution, and relentless community
-          management. The studio is remote-first with pods across North America
-          and the EU.
+          management. 
         </p>
       </div>
       <div className="mt-10 grid gap-6 md:grid-cols-3">
