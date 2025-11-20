@@ -119,7 +119,7 @@ export default function PackagesPage() {
         </p>
         <div className="mt-6 flex flex-wrap gap-4 text-sm">
           <a
-            href="mailto:hello@designfi.studio"
+            href="mailto:blaine@designfi.studio"
             className="rounded-full bg-white px-6 py-3 font-semibold text-slate-900"
           >
             Request proposal

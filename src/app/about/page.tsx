@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Send, Linkedin } from "lucide-react";
+import { Send, Linkedin, Mail } from "lucide-react";
 import profilePic from "@/../public/pic.jpg";
 
 const pillars = [
@@ -97,6 +97,13 @@ export default function AboutPage() {
               >
                 <Linkedin className="h-4 w-4" />
                 LinkedIn
+              </a>
+              <a
+                href="mailto:blaine@designfi.studio"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/10"
+              >
+                <Mail className="h-4 w-4" />
+                Email
               </a>
             </div>
           </div>

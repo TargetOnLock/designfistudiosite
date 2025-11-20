@@ -81,7 +81,7 @@ export default function ServicesPage() {
         </p>
         <div className="mt-6 flex flex-wrap gap-4">
           <a
-            href="mailto:hello@designfi.studio"
+            href="mailto:blaine@designfi.studio"
             className="rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white"
           >
             Email the studio

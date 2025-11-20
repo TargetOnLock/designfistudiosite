@@ -216,7 +216,7 @@ export default function CryptoMarketingPage() {
             X (Twitter)
           </a>
           <a
-            href="mailto:hello@designfi.studio"
+            href="mailto:blaine@designfi.studio"
             className="rounded-full border border-white/60 px-6 py-3 text-sm font-semibold text-white"
           >
             Email the Team
