@@ -21,23 +21,43 @@ export async function generateMetadata({
   // Generate keywords from article content
   const keywords = generateArticleKeywords(article.title, article.content);
   
-  // Generate meta description
+  // Generate meta description - ensure it's always present and well-formatted
   const description = generateMetaDescription(
     article.content || article.title,
     160
-  );
+  ) || `Read ${article.title} on DesignFi Studio. ${article.content.substring(0, 120)}...`;
 
-  // Use article image for Open Graph if available
-  const ogImage = article.image || "/favicon.png";
+  // Handle image URL for Open Graph
+  // If image is base64, we need to serve it through an API endpoint
+  // Otherwise, ensure it's an absolute URL
+  let ogImage: string;
+  if (article.image) {
+    if (article.image.startsWith("data:image")) {
+      // Base64 image - serve through API endpoint
+      ogImage = `https://designfi.studio/api/articles/${article.id}/image`;
+    } else if (article.image.startsWith("http://") || article.image.startsWith("https://")) {
+      // Already an absolute URL
+      ogImage = article.image;
+    } else if (article.image.startsWith("/")) {
+      // Relative URL - make it absolute
+      ogImage = `https://designfi.studio${article.image}`;
+    } else {
+      // Assume it's a relative path
+      ogImage = `https://designfi.studio/${article.image}`;
+    }
+  } else {
+    // Fallback to favicon
+    ogImage = "https://designfi.studio/favicon.png";
+  }
 
   return {
     title: `${article.title} | DesignFi Studio Articles`,
-    description: description || `Read ${article.title} on DesignFi Studio. ${article.content.substring(0, 100)}...`,
+    description: description,
     keywords: keywords,
     authors: [{ name: article.author }],
     openGraph: {
       title: article.title,
-      description: description || article.content.substring(0, 160),
+      description: description,
       url: `https://designfi.studio/articles/${article.id}`,
       type: "article",
       publishedTime: article.publishedAt,
@@ -50,12 +70,14 @@ export async function generateMetadata({
           alt: article.title,
         },
       ],
+      siteName: "DesignFi Studio",
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
-      description: description || article.content.substring(0, 160),
+      description: description,
       images: [ogImage],
+      creator: "@DesignFiStudio",
     },
     alternates: {
       canonical: `https://designfi.studio/articles/${article.id}`,
@@ -78,7 +100,7 @@ export default async function ArticleLayout({
       {article && (
         <ArticleStructuredData
           title={article.title}
-          description={generateMetaDescription(article.content || article.title, 160)}
+          description={generateMetaDescription(article.content || article.title, 160) || `Read ${article.title} on DesignFi Studio. ${article.content.substring(0, 120)}...`}
           image={article.image}
           author={article.author}
           publishedAt={article.publishedAt}

@@ -81,12 +81,28 @@ export function ArticleStructuredData({
   publishedAt: string;
   url: string;
 }) {
+  // Handle image URL - convert base64 to API endpoint if needed
+  let imageUrl = "https://designfi.studio/favicon.png";
+  if (image) {
+    if (image.startsWith("data:image")) {
+      // Extract article ID from URL to create image API endpoint
+      const articleId = url.split("/articles/")[1]?.split("/")[0] || url.split("/").pop();
+      imageUrl = `https://designfi.studio/api/articles/${articleId}/image`;
+    } else if (image.startsWith("http://") || image.startsWith("https://")) {
+      imageUrl = image;
+    } else if (image.startsWith("/")) {
+      imageUrl = `https://designfi.studio${image}`;
+    } else {
+      imageUrl = `https://designfi.studio/${image}`;
+    }
+  }
+
   const data = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: title,
     description: description,
-    image: image || "https://designfi.studio/favicon.png",
+    image: imageUrl,
     author: {
       "@type": "Person",
       name: author,
