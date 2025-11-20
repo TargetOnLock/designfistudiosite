@@ -6,9 +6,10 @@ import { getArticleById } from "@/lib/articles-data";
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const article = await getArticleById(params.id);
+  const { id } = await params;
+  const article = await getArticleById(id);
 
   if (!article) {
     return {
@@ -67,9 +68,10 @@ export default async function ArticleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const article = await getArticleById(params.id);
+  const { id } = await params;
+  const article = await getArticleById(id);
 
   return (
     <>
