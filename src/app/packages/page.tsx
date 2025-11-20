@@ -1,3 +1,38 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Packages & Pricing | Custom IRL & Crypto Marketing Packages | DesignFi Studio",
+  description:
+    "Bespoke packages for IRL services and crypto marketing. Custom brand launch kits, growth retainers, token sprints, and Web3 accelerator packages tailored to your goals.",
+  keywords: [
+    "marketing packages",
+    "crypto marketing packages",
+    "brand launch kit",
+    "growth retainer",
+    "token sprint",
+    "Web3 accelerator",
+    "custom marketing",
+    "pricing",
+    "marketing services",
+    "DesignFi Studio",
+  ],
+  openGraph: {
+    title: "Packages & Pricing | Custom IRL & Crypto Marketing Packages | DesignFi Studio",
+    description:
+      "Bespoke packages for IRL services and crypto pushes. Every engagement begins with a discovery and roadmap.",
+    url: "https://designfi.studio/packages",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Packages & Pricing | DesignFi Studio",
+    description: "Bespoke packages for IRL services and crypto marketing.",
+  },
+  alternates: {
+    canonical: "https://designfi.studio/packages",
+  },
+};
+
 const irlPackages = [
   {
     name: "Brand Launch Kit",

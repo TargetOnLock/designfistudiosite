@@ -1,3 +1,35 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Us | Start Your Project | DesignFi Studio",
+  description:
+    "Get in touch with DesignFi Studio to start your project. Contact us via Telegram, X (Twitter), or email. We reply within 12 hours (fastest via Telegram).",
+  keywords: [
+    "contact DesignFi Studio",
+    "start project",
+    "get quote",
+    "marketing consultation",
+    "branding consultation",
+    "crypto marketing consultation",
+    "DesignFi Studio contact",
+  ],
+  openGraph: {
+    title: "Contact Us | Start Your Project | DesignFi Studio",
+    description:
+      "Tell us about your brand, launch date, and target metrics. We reply in under 12 hours (fastest via Telegram).",
+    url: "https://designfi.studio/contact",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Contact Us | DesignFi Studio",
+    description: "Start your project with DesignFi Studio. We reply within 12 hours.",
+  },
+  alternates: {
+    canonical: "https://designfi.studio/contact",
+  },
+};
+
 const contactMethods = [
   {
     label: "Telegram (Fastest)",

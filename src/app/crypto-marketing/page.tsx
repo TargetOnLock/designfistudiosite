@@ -1,3 +1,43 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Crypto Marketing Services | Token Launch & Web3 Growth | DesignFi Studio",
+  description:
+    "Marketing designed specifically for tokens, NFTs, and Web3 brands. Token branding, launch marketing, community growth, trending campaigns, and influencer outreach for crypto projects.",
+  keywords: [
+    "crypto marketing",
+    "token marketing",
+    "Web3 marketing",
+    "NFT marketing",
+    "token launch",
+    "crypto branding",
+    "blockchain marketing",
+    "token trending",
+    "DexTools trending",
+    "crypto community management",
+    "KOL campaigns",
+    "crypto influencer marketing",
+    "token website",
+    "whitepaper writing",
+    "DesignFi Studio",
+  ],
+  openGraph: {
+    title: "Crypto Marketing Services | Token Launch & Web3 Growth | DesignFi Studio",
+    description:
+      "Marketing designed specifically for tokens, NFTs, and Web3 brands — from branding to trending to community growth.",
+    url: "https://designfi.studio/crypto-marketing",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Crypto Marketing Services | DesignFi Studio",
+    description: "Accelerate your crypto project with proven Web3 growth strategies.",
+  },
+  alternates: {
+    canonical: "https://designfi.studio/crypto-marketing",
+  },
+};
+
 const offerings = [
   {
     title: "Token Branding",

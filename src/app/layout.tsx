@@ -5,6 +5,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WalletContextProvider } from "@/components/wallet-provider";
+import { OrganizationStructuredData, WebSiteStructuredData } from "@/components/structured-data";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,6 +62,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <OrganizationStructuredData />
+        <WebSiteStructuredData />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-100`}
       >

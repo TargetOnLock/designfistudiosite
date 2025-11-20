@@ -1,6 +1,40 @@
 import Image from "next/image";
 import { Send, Linkedin, Mail } from "lucide-react";
+import type { Metadata } from "next";
 import profilePic from "@/../public/pic.jpg";
+
+export const metadata: Metadata = {
+  title: "About Us | DesignFi Studio - Hybrid Web2/Web3 Creative Agency",
+  description:
+    "Learn about DesignFi Studio, a hybrid Web2/Web3 agency built for speed, craft, and measurable results. Meet Blaine Powers, Owner & CEO, and discover our mission to bridge traditional and crypto marketing.",
+  keywords: [
+    "DesignFi Studio",
+    "about DesignFi",
+    "Blaine Powers",
+    "Web3 agency",
+    "hybrid agency",
+    "creative agency",
+    "digital marketing agency",
+    "Web2 Web3",
+    "crypto agency",
+    "branding agency",
+  ],
+  openGraph: {
+    title: "About Us | DesignFi Studio - Hybrid Web2/Web3 Creative Agency",
+    description:
+      "A hybrid Web2/Web3 agency built for speed, craft, and measurable results.",
+    url: "https://designfi.studio/about",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Us | DesignFi Studio",
+    description: "A hybrid Web2/Web3 agency built for speed, craft, and measurable results.",
+  },
+  alternates: {
+    canonical: "https://designfi.studio/about",
+  },
+};
 
 const pillars = [
   {

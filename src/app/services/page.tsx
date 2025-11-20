@@ -1,3 +1,42 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "IRL Services | Brand Strategy, Marketing & Growth | DesignFi Studio",
+  description:
+    "Strategic branding, campaigns, paid media, SEO, and reputational content for real-world businesses. Brand strategy, creative campaigns, web development, and growth marketing for IRL brands.",
+  keywords: [
+    "brand strategy",
+    "marketing agency",
+    "branding services",
+    "paid media",
+    "SEO services",
+    "web development",
+    "creative campaigns",
+    "growth marketing",
+    "brand identity",
+    "content marketing",
+    "social media marketing",
+    "e-commerce",
+    "conversion optimization",
+    "DesignFi Studio",
+  ],
+  openGraph: {
+    title: "IRL Services | Brand Strategy, Marketing & Growth | DesignFi Studio",
+    description:
+      "Strategic branding, campaigns, paid media, SEO, and reputational content for real-world businesses.",
+    url: "https://designfi.studio/services",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "IRL Services | DesignFi Studio",
+    description: "Strategic branding, campaigns, and growth marketing for real-world businesses.",
+  },
+  alternates: {
+    canonical: "https://designfi.studio/services",
+  },
+};
+
 const services = [
   {
     title: "Brand Strategy & Identity",

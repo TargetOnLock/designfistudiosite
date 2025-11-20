@@ -1,4 +1,45 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "DesignFi Studio | Hybrid Web2 & Web3 Creative Agency",
+  description:
+    "Hybrid Web2 & Web3 creative agency delivering elegant design systems, growth campaigns, and brand strategy for ambitious brands. We build for both traditional companies and crypto-native teams.",
+  keywords: [
+    "DesignFi Studio",
+    "Web3 marketing agency",
+    "crypto marketing",
+    "branding studio",
+    "hybrid Web2 Web3 agency",
+    "design and growth studio",
+    "token launch marketing",
+    "creative agency",
+    "brand strategy",
+    "growth campaigns",
+    "Web3 branding",
+    "crypto agency",
+    "NFT marketing",
+    "blockchain marketing",
+  ],
+  openGraph: {
+    title: "DesignFi Studio | Hybrid Web2 & Web3 Creative Agency",
+    description:
+      "Hybrid Web2 & Web3 creative agency delivering elegant design systems, growth campaigns, and brand strategy for ambitious brands.",
+    url: "https://designfi.studio",
+    type: "website",
+    siteName: "DesignFi Studio",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DesignFi Studio | Hybrid Web2 & Web3 Creative Agency",
+    description:
+      "Hybrid Web2 & Web3 creative agency delivering elegant design systems and growth campaigns for ambitious brands.",
+    creator: "@DesignFiStudio",
+  },
+  alternates: {
+    canonical: "https://designfi.studio",
+  },
+};
 
 const pillars = [
   {
