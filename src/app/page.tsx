@@ -70,20 +70,7 @@ export default function Home() {
               See Crypto Marketing
             </Link>
           </div>
-          <div className="flex flex-wrap gap-6 text-sm text-slate-400">
-            <div>
-              <p className="text-3xl font-semibold text-white">120+</p>
-              <p>IRL launches</p>
-            </div>
-            <div>
-              <p className="text-3xl font-semibold text-white">60+</p>
-              <p>Web3 campaigns</p>
-            </div>
-            <div>
-              <p className="text-3xl font-semibold text-white">24/7</p>
-              <p>Telegram support</p>
-            </div>
-          </div>
+          
         </div>
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 shadow-[0_25px_80px_rgba(2,6,23,0.8)] backdrop-blur">
           <p className="text-xs uppercase tracking-[0.3em] text-slate-300">
