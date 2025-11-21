@@ -5,10 +5,9 @@
 Add the following to your `.env.local` file:
 
 ```
-SOLANA_MERCHANT_WALLET=your_solana_wallet_address_here
+SOLANA_MERCHANT_WALLET=DA7GPnpyxVkL7Lfc3vnRw1bz9XGbSAiTs7Z2GEGanvWj
 ```
 
-Replace `your_solana_wallet_address_here` with your actual Solana wallet address where you want to receive payments.
 
 ## Payment Flow
 

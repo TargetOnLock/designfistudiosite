@@ -166,15 +166,6 @@ export default function PublishPage() {
         throw new Error(`Insufficient balance. You need at least ${solAmount.toFixed(4)} SOL (plus transaction fees).`);
       }
 
-      // Create transaction
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: merchantPublicKey,
-          lamports,
-        })
-      );
-
       // Get recent blockhash with retry
       let blockhash;
       try {
@@ -185,43 +176,75 @@ export default function PublishPage() {
         throw new Error("Failed to connect to Solana network. Please try again.");
       }
 
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
-
-      console.log("Sending transaction...", {
-        from: publicKey.toString(),
-        to: merchantPublicKey.toString(),
-        amount: solAmount,
-        lamports,
-      });
+      // Check if Phantom is available
+      const phantomProvider = getProvider();
+      const isPhantom = phantomProvider && phantomProvider.isPhantom;
 
       let signature: string;
 
-      // Use Phantom's native API if available (more secure, avoids "possibly malicious" warning)
-      const phantomProvider = getProvider();
-      if (phantomProvider && phantomProvider.isPhantom) {
+      if (isPhantom) {
+        // For Phantom: Create unsigned transaction with space for Lighthouse guard instructions
+        // According to Phantom docs: transaction must be unsigned and have sufficient space
+        const transaction = new Transaction();
+        
+        // Add the transfer instruction
+        transaction.add(
+          SystemProgram.transfer({
+            fromPubkey: publicKey,
+            toPubkey: merchantPublicKey,
+            lamports,
+          })
+        );
+
+        // Set blockhash and fee payer (but DO NOT sign - Phantom will sign it)
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = publicKey;
+
+        // Ensure transaction has space for guard instructions by not pre-signing
+        // Phantom's signAndSendTransaction will add guard instructions and sign
+
+        console.log("Using Phantom's signAndSendTransaction (unsigned transaction)...", {
+          from: publicKey.toString(),
+          to: merchantPublicKey.toString(),
+          amount: solAmount,
+          lamports,
+        });
+
         try {
-          console.log("Using Phantom's native signAndSendTransaction API");
+          // Use Phantom's exclusive signAndSendTransaction method
+          // Transaction is unsigned - Phantom will sign it and add guard instructions
           const result = await phantomProvider.signAndSendTransaction(transaction);
           signature = result.signature;
-          console.log("Transaction sent via Phantom, signature:", signature);
+          console.log("Transaction sent via Phantom signAndSendTransaction, signature:", signature);
         } catch (error) {
-          console.error("Phantom native API failed, falling back to wallet adapter:", error);
-          // Fallback to wallet adapter method
-          signature = await sendTransaction(transaction, connection, {
-            skipPreflight: false,
-            preflightCommitment: "confirmed",
-          });
-          console.log("Transaction sent via wallet adapter, signature:", signature);
+          console.error("Phantom signAndSendTransaction failed:", error);
+          throw error; // Don't fallback - use Phantom's method exclusively
         }
       } else {
-        // Use wallet adapter for other wallets (Solflare, etc.)
-        console.log("Using wallet adapter sendTransaction");
+        // For other wallets (Solflare, etc.), use wallet adapter
+        const transaction = new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey: publicKey,
+            toPubkey: merchantPublicKey,
+            lamports,
+          })
+        );
+
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = publicKey;
+
+        console.log("Using wallet adapter sendTransaction for non-Phantom wallet...", {
+          from: publicKey.toString(),
+          to: merchantPublicKey.toString(),
+          amount: solAmount,
+          lamports,
+        });
+
         signature = await sendTransaction(transaction, connection, {
           skipPreflight: false,
           preflightCommitment: "confirmed",
         });
-        console.log("Transaction sent, signature:", signature);
+        console.log("Transaction sent via wallet adapter, signature:", signature);
       }
 
       // Wait for confirmation using Phantom's recommended method
