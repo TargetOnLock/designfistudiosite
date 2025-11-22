@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Upload, X as XIcon, Loader2, CheckCircle2 } from "lucide-react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
@@ -36,7 +36,7 @@ const FREE_PUBLISHING_WALLETS = [
   "5kPWDedQYWuXkjLwZcfk9RYp6Vg9oXbqwEvaXDdDUj5J", // Additional free wallet
 ];
 
-export default function PublishPage() {
+function PublishPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { publicKey, sendTransaction, connected } = useWallet();
@@ -705,5 +705,20 @@ export default function PublishPage() {
         </ul>
       </div>
     </div>
+  );
+}
+
+export default function PublishPage() {
+  return (
+    <Suspense fallback={
+      <div className="mx-auto w-full max-w-4xl px-4 py-12">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
+          <Loader2 className="h-8 w-8 mx-auto text-white animate-spin mb-4" />
+          <p className="text-xl font-semibold text-white">Loading...</p>
+        </div>
+      </div>
+    }>
+      <PublishPageContent />
+    </Suspense>
   );
 }
