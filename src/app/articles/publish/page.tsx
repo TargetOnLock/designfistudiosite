@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Upload, X as XIcon, Loader2, CheckCircle2 } from "lucide-react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
@@ -38,6 +38,7 @@ const FREE_PUBLISHING_WALLETS = [
 
 export default function PublishPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { publicKey, sendTransaction, connected } = useWallet();
   const { connection } = useConnection();
   const { setVisible } = useWalletModal();
@@ -54,10 +55,29 @@ export default function PublishPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [solAmount, setSolAmount] = useState<number | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralInfo, setReferralInfo] = useState<{ referrerWallet: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check if connected wallet gets free publishing
   const isFreeWallet = publicKey ? FREE_PUBLISHING_WALLETS.includes(publicKey.toString()) : false;
+
+  // Get referral code from URL
+  useEffect(() => {
+    const refCode = searchParams.get("ref");
+    if (refCode) {
+      setReferralCode(refCode);
+      // Verify referral code exists
+      fetch(`/api/referrals?code=${refCode}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && !data.error) {
+            setReferralInfo({ referrerWallet: data.referrerWallet });
+          }
+        })
+        .catch((err) => console.error("Error verifying referral:", err));
+    }
+  }, [searchParams]);
 
   // Fetch SOL price and calculate amount
   useEffect(() => {
@@ -266,6 +286,18 @@ export default function PublishPage() {
 
       console.log("Transaction confirmed:", confirmation);
 
+      // Record referral earning if referral code exists
+      if (referralCode && !isFreeWallet) {
+        try {
+          // We'll record the referral earning after article is published
+          // Store the payment amount and signature for later
+          console.log("Referral code detected, will record earning after publication");
+        } catch (refError) {
+          console.error("Error preparing referral tracking:", refError);
+          // Don't block payment if referral tracking fails
+        }
+      }
+
       setPaymentStatus("success");
       setIsPaid(true);
     } catch (error) {
@@ -363,6 +395,35 @@ export default function PublishPage() {
       const savedArticle = await response.json();
       console.log("Article saved successfully:", savedArticle.id);
 
+      // Record referral earning if referral code exists and payment was made
+      if (referralCode && !isFreeWallet && solAmount && publicKey) {
+        try {
+          const paymentAmountLamports = Math.max(1, Math.floor(solAmount * LAMPORTS_PER_SOL));
+          const referralResponse = await fetch("/api/referrals", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              referralCode,
+              articleId: savedArticle.id,
+              publisherWallet: publicKey.toString(),
+              paymentAmount: paymentAmountLamports,
+            }),
+          });
+
+          if (referralResponse.ok) {
+            const earning = await referralResponse.json();
+            console.log("Referral earning recorded:", earning);
+          } else {
+            console.error("Failed to record referral earning");
+          }
+        } catch (refError) {
+          console.error("Error recording referral earning:", refError);
+          // Don't block article publication if referral tracking fails
+        }
+      }
+
       // Also save to localStorage as backup
       const existingArticles = localStorage.getItem("publishedArticles");
       const articles = existingArticles ? JSON.parse(existingArticles) : [];
@@ -386,18 +447,25 @@ export default function PublishPage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-12">
-      <div className="max-w-3xl space-y-4 mb-10">
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
-          Self-Publishing Platform
-        </p>
-        <h1 className="text-4xl font-semibold text-white">
-          Publish Your Article
-        </h1>
-        <p className="text-lg text-slate-300">
-          Share your insights with the community. Each publication costs ${PUBLICATION_COST_USD} USD
-          {solAmount && ` (~${solAmount.toFixed(4)} SOL)`}.
-        </p>
-      </div>
+          <div className="max-w-3xl space-y-4 mb-10">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
+              Self-Publishing Platform
+            </p>
+            <h1 className="text-4xl font-semibold text-white">
+              Publish Your Article
+            </h1>
+            <p className="text-lg text-slate-300">
+              Share your insights with the community. Each publication costs ${PUBLICATION_COST_USD} USD
+              {solAmount && ` (~${solAmount.toFixed(4)} SOL)`}.
+            </p>
+            {referralCode && referralInfo && (
+              <div className="rounded-2xl border border-emerald-400/40 bg-emerald-600/20 p-4">
+                <p className="text-sm text-emerald-300">
+                  🎉 You&apos;re using a referral link! The referrer will earn 10% of your payment.
+                </p>
+              </div>
+            )}
+          </div>
 
       <div className="space-y-6">
         {/* Title */}
