@@ -68,13 +68,50 @@ async function fetchFeedArticles(feedConfig: {
       // Extract image from content or use a default
       let image = "https://via.placeholder.com/1200x630/1e293b/64748b?text=Article"; // Default placeholder
       
-      if (item.contentSnippet || item.content) {
-        // Try to extract image from HTML content
-        const content = item.content || item.contentSnippet || "";
-        const imgMatch = content.match(/<img[^>]+src="([^"]+)"/i);
-        if (imgMatch && imgMatch[1]) {
-          image = imgMatch[1];
+      // Helper function to convert relative URLs to absolute
+      const makeAbsoluteUrl = (url: string, baseUrl: string): string => {
+        if (!url) return "";
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+          return url;
         }
+        try {
+          const base = new URL(baseUrl);
+          return new URL(url, base.origin).href;
+        } catch {
+          return url;
+        }
+      };
+
+      // Try to extract image from content (handle both single and double quotes)
+      if (item.content || item.contentSnippet) {
+        const content = item.content || item.contentSnippet || "";
+        
+        // Try double quotes first
+        let imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (!imgMatch) {
+          // Try single quotes
+          imgMatch = content.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
+        }
+        if (!imgMatch) {
+          // Try without quotes
+          imgMatch = content.match(/<img[^>]+src=([^\s>]+)/i);
+        }
+        
+        if (imgMatch && imgMatch[1]) {
+          let extractedUrl = imgMatch[1];
+          // Clean up the URL (remove quotes if any)
+          extractedUrl = extractedUrl.replace(/^["']|["']$/g, "");
+          // Convert to absolute URL if needed
+          if (item.link) {
+            extractedUrl = makeAbsoluteUrl(extractedUrl, item.link);
+          }
+          image = extractedUrl;
+        }
+      }
+
+      // Check for media:content tags (common in RSS feeds)
+      if ((item as any)["media:content"] && (item as any)["media:content"].url) {
+        image = (item as any)["media:content"].url;
       }
 
       // Use enclosures if available (common in RSS feeds)
@@ -90,6 +127,16 @@ async function fetchFeedArticles(feedConfig: {
       // Use itunes image if available
       if ((item as any).itunes?.image) {
         image = (item as any).itunes.image;
+      }
+
+      // Validate image URL - if it's still the placeholder or invalid, try to get from feed image
+      if (image === "https://via.placeholder.com/1200x630/1e293b/64748b?text=Article") {
+        if (feed.image?.url) {
+          image = feed.image.url;
+        } else if (feed.image) {
+          // Sometimes feed.image is a string
+          image = typeof feed.image === "string" ? feed.image : feed.image.url || image;
+        }
       }
 
       // Generate a simple ID from the URL

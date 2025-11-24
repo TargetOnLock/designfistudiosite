@@ -130,25 +130,31 @@ export default function ArticlePage() {
 
         {/* Featured Image */}
         {article.image && (
-          <div className="relative w-full min-h-96 max-h-[600px] overflow-hidden bg-slate-900/50 flex items-center justify-center">
+          <div className="relative w-full min-h-64 md:min-h-96 max-h-[600px] overflow-hidden bg-slate-900/50 flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={article.image}
               alt={article.title}
               className="max-w-full max-h-full w-auto h-auto object-contain"
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.src = "https://via.placeholder.com/1200x630/1e293b/64748b?text=Article";
+              }}
+              loading="lazy"
             />
           </div>
         )}
 
         {/* Article Content */}
-        <div className="p-8 md:p-12">
+        <div className="p-4 md:p-8 lg:p-12">
           {/* Title */}
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <h1 className="text-4xl md:text-5xl font-semibold text-white flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white flex-1">
               {article.title}
             </h1>
             {article.source === "external" && (
-              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap self-start">
                 External
               </span>
             )}

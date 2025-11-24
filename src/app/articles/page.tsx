@@ -78,21 +78,21 @@ export default function ArticlesPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12">
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
         <div className="max-w-3xl space-y-4">
           <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
             Published Articles
           </p>
-          <h1 className="text-4xl font-semibold text-white">
+          <h1 className="text-3xl md:text-4xl font-semibold text-white">
             Community Articles
           </h1>
-          <p className="text-lg text-slate-300">
+          <p className="text-base md:text-lg text-slate-300">
             Insights, strategies, and stories from our community of creators and builders, plus curated articles from top crypto and business news outlets.
           </p>
         </div>
         <Link
           href="/articles/publish"
-          className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(139,92,246,0.35)] transition hover:-translate-y-0.5 flex items-center gap-2"
+          className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(139,92,246,0.35)] transition hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto"
         >
           <Plus className="h-4 w-4" />
           Publish Article
@@ -122,7 +122,7 @@ export default function ArticlesPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => {
             // External articles should link directly to the external URL
             const articleHref = article.source === "external" && article.externalUrl
@@ -131,7 +131,7 @@ export default function ArticlesPage() {
             const isExternal = article.source === "external" && article.externalUrl;
             
             const CardContent = (
-              <div className={`group rounded-3xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition ${isExternal ? 'cursor-pointer' : ''}`}>
+              <div className={`group rounded-3xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition ${isExternal ? 'cursor-pointer' : ''} w-full`}>
               {/* Image */}
               <div className="relative h-48 overflow-hidden bg-slate-900/50 flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -139,17 +139,23 @@ export default function ArticlesPage() {
                   src={article.image}
                   alt={article.title}
                   className="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://via.placeholder.com/1200x630/1e293b/64748b?text=Article";
+                  }}
+                  loading="lazy"
                 />
               </div>
 
               {/* Content */}
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h2 className="text-xl font-semibold text-white line-clamp-2 group-hover:text-violet-300 transition flex-1">
+              <div className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                  <h2 className="text-lg md:text-xl font-semibold text-white line-clamp-2 group-hover:text-violet-300 transition flex-1">
                     {article.title}
                   </h2>
                   {article.source === "external" && (
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap">
+                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap self-start">
                       External
                     </span>
                   )}
