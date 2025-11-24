@@ -38,11 +38,6 @@ export const metadata: Metadata = {
 
 const pillars = [
   {
-    title: "Hybrid mindset",
-    detail:
-      "We launched IRL campaigns for Fortune 500 teams and helped tokens trend on DexTools. That duality keeps our work grounded and future-forward.",
-  },
-  {
     title: "Strategy first",
     detail:
       "Every engagement starts with research sprints, whiteboard sessions, and success metrics aligned to both community health and revenue.",
