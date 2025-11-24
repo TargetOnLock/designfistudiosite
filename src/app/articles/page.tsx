@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Send, Twitter } from "lucide-react";
+import { Plus, ExternalLink, Send, Twitter, Globe } from "lucide-react";
 
 interface Article {
   id: string;
@@ -14,6 +14,9 @@ interface Article {
   websiteLink?: string;
   publishedAt: string;
   author: string;
+  source?: "self-published" | "external";
+  externalUrl?: string;
+  sourceName?: string;
 }
 
 export default function ArticlesPage() {
@@ -84,7 +87,7 @@ export default function ArticlesPage() {
             Community Articles
           </h1>
           <p className="text-lg text-slate-300">
-            Insights, strategies, and stories from our community of creators and builders.
+            Insights, strategies, and stories from our community of creators and builders, plus curated articles from top crypto and business news outlets.
           </p>
         </div>
         <Link
@@ -120,12 +123,15 @@ export default function ArticlesPage() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article) => (
-            <Link
-              key={article.id}
-              href={`/articles/${article.id}`}
-              className="group rounded-3xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition block"
-            >
+          {articles.map((article) => {
+            // External articles should link directly to the external URL
+            const articleHref = article.source === "external" && article.externalUrl
+              ? article.externalUrl
+              : `/articles/${article.id}`;
+            const isExternal = article.source === "external" && article.externalUrl;
+            
+            const CardContent = (
+              <div className={`group rounded-3xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 transition ${isExternal ? 'cursor-pointer' : ''}`}>
               {/* Image */}
               <div className="relative h-48 overflow-hidden bg-slate-900/50 flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -138,66 +144,105 @@ export default function ArticlesPage() {
 
               {/* Content */}
               <div className="p-6">
-                <h2 className="text-xl font-semibold text-white mb-2 line-clamp-2 group-hover:text-violet-300 transition">
-                  {article.title}
-                </h2>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h2 className="text-xl font-semibold text-white line-clamp-2 group-hover:text-violet-300 transition flex-1">
+                    {article.title}
+                  </h2>
+                  {article.source === "external" && (
+                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap">
+                      External
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-slate-300 mb-4 line-clamp-3">
                   {article.content}
                 </p>
 
                 {/* Author & Date */}
                 <div className="flex items-center justify-between text-xs text-slate-400 mb-4">
-                  <span>{article.author}</span>
+                  <span>{article.sourceName || article.author}</span>
                   <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
                 </div>
 
                 {/* Links */}
-                {(article.telegramLink || article.twitterLink || article.websiteLink) && (
-                  <div 
-                    className="flex items-center gap-3 pt-4 border-t border-white/10"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {article.telegramLink && (
-                      <a
-                        href={article.telegramLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Send className="h-3 w-3" />
-                        Telegram
-                      </a>
-                    )}
-                    {article.twitterLink && (
-                      <a
-                        href={article.twitterLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Twitter className="h-3 w-3" />
-                        Twitter
-                      </a>
-                    )}
-                    {article.websiteLink && (
-                      <a
-                        href={article.websiteLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        Website
-                      </a>
-                    )}
-                  </div>
-                )}
+                <div 
+                  className="flex items-center gap-3 pt-4 border-t border-white/10"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {article.source === "external" && article.externalUrl ? (
+                    <a
+                      href={article.externalUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Globe className="h-3 w-3" />
+                      Read on {article.sourceName}
+                    </a>
+                  ) : (
+                    <>
+                      {article.telegramLink && (
+                        <a
+                          href={article.telegramLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Send className="h-3 w-3" />
+                          Telegram
+                        </a>
+                      )}
+                      {article.twitterLink && (
+                        <a
+                          href={article.twitterLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Twitter className="h-3 w-3" />
+                          Twitter
+                        </a>
+                      )}
+                      {article.websiteLink && (
+                        <a
+                          href={article.websiteLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Website
+                        </a>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </Link>
-          ))}
+            </div>
+            );
+
+            // For external articles, use a div with onClick, otherwise use Link
+            if (isExternal) {
+              return (
+                <div
+                  key={article.id}
+                  onClick={() => window.open(article.externalUrl, '_blank', 'noopener,noreferrer')}
+                >
+                  {CardContent}
+                </div>
+              );
+            }
+
+            return (
+              <Link key={article.id} href={articleHref}>
+                {CardContent}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

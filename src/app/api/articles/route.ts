@@ -28,11 +28,37 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+    const includeExternal = searchParams.get("includeExternal") !== "false"; // Default to true
+
+    let selfPublishedArticles: any[] = [];
 
     // If Supabase is configured, use it
     if (isSupabaseConfigured()) {
       if (id) {
-        // Fetch single article
+        // Fetch single article - check if it's external first
+        if (id.startsWith("external-")) {
+          // Fetch from external API
+          try {
+            const externalResponse = await fetch(
+              `${request.nextUrl.origin}/api/articles/external?limit=100`
+            );
+            if (externalResponse.ok) {
+              const externalArticles = await externalResponse.json();
+              const article = externalArticles.find((a: any) => a.id === id);
+              if (article) {
+                return NextResponse.json(article);
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching external article:", error);
+          }
+          return NextResponse.json(
+            { error: "Article not found" },
+            { status: 404 }
+          );
+        }
+
+        // Fetch single self-published article
         const { data, error } = await supabase
           .from("articles")
           .select("*")
@@ -58,9 +84,10 @@ export async function GET(request: NextRequest) {
           websiteLink: data.website_link,
           publishedAt: data.published_at,
           author: data.author,
+          source: "self-published",
         });
       } else {
-        // Fetch all articles
+        // Fetch all self-published articles
         const { data, error } = await supabase
           .from("articles")
           .select("*")
@@ -72,7 +99,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Convert snake_case to camelCase for response
-        const articles = (data || []).map((article) => ({
+        selfPublishedArticles = (data || []).map((article) => ({
           id: article.id,
           title: article.title,
           content: article.content,
@@ -82,16 +109,40 @@ export async function GET(request: NextRequest) {
           websiteLink: article.website_link,
           publishedAt: article.published_at,
           author: article.author,
+          source: "self-published",
         }));
-
-        return NextResponse.json(articles);
       }
     } else {
       // Fallback to in-memory store
       if (id) {
+        if (id.startsWith("external-")) {
+          // Fetch from external API
+          try {
+            const externalResponse = await fetch(
+              `${request.nextUrl.origin}/api/articles/external?limit=100`
+            );
+            if (externalResponse.ok) {
+              const externalArticles = await externalResponse.json();
+              const article = externalArticles.find((a: any) => a.id === id);
+              if (article) {
+                return NextResponse.json(article);
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching external article:", error);
+          }
+          return NextResponse.json(
+            { error: "Article not found" },
+            { status: 404 }
+          );
+        }
+
         const article = articlesStore.find((a) => a.id === id);
         if (article) {
-          return NextResponse.json(article);
+          return NextResponse.json({
+            ...article,
+            source: "self-published",
+          });
         }
         return NextResponse.json(
           { error: "Article not found" },
@@ -99,14 +150,41 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const sortedArticles = [...articlesStore].sort(
-        (a, b) =>
-          new Date(b.publishedAt).getTime() -
-          new Date(a.publishedAt).getTime()
-      );
-
-      return NextResponse.json(sortedArticles);
+      selfPublishedArticles = [...articlesStore]
+        .sort(
+          (a, b) =>
+            new Date(b.publishedAt).getTime() -
+            new Date(a.publishedAt).getTime()
+        )
+        .map((article) => ({
+          ...article,
+          source: "self-published",
+        }));
     }
+
+    // If fetching all articles and includeExternal is true, merge with external articles
+    if (!id && includeExternal) {
+      try {
+        const externalResponse = await fetch(
+          `${request.nextUrl.origin}/api/articles/external?limit=20`
+        );
+        if (externalResponse.ok) {
+          const externalArticles = await externalResponse.json();
+          // Combine and sort by published date
+          const allArticles = [...selfPublishedArticles, ...externalArticles].sort(
+            (a, b) =>
+              new Date(b.publishedAt).getTime() -
+              new Date(a.publishedAt).getTime()
+          );
+          return NextResponse.json(allArticles);
+        }
+      } catch (error) {
+        console.error("Error fetching external articles:", error);
+        // Return only self-published articles if external fetch fails
+      }
+    }
+
+    return NextResponse.json(selfPublishedArticles);
   } catch (error) {
     console.error("Error reading articles:", error);
     return NextResponse.json(

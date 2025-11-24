@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Send, Twitter, Calendar, User } from "lucide-react";
+import { ArrowLeft, ExternalLink, Send, Twitter, Calendar, User, Globe } from "lucide-react";
 
 interface Article {
   id: string;
@@ -15,6 +15,9 @@ interface Article {
   websiteLink?: string;
   publishedAt: string;
   author: string;
+  source?: "self-published" | "external";
+  externalUrl?: string;
+  sourceName?: string;
 }
 
 export default function ArticlePage() {
@@ -31,6 +34,14 @@ export default function ArticlePage() {
           const foundArticle = await response.json();
           if (foundArticle && !foundArticle.error) {
             setArticle(foundArticle);
+            
+            // If it's an external article, redirect to the external URL
+            if (foundArticle.source === "external" && foundArticle.externalUrl) {
+              // Small delay to show the page briefly, then redirect
+              setTimeout(() => {
+                window.location.href = foundArticle.externalUrl;
+              }, 2000);
+            }
           } else {
             setNotFound(true);
           }
@@ -91,6 +102,32 @@ export default function ArticlePage() {
       </Link>
 
       <article className="rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
+        {/* External Article Notice */}
+        {article.source === "external" && article.externalUrl && (
+          <div className="bg-blue-500/20 border-b border-blue-500/30 p-6">
+            <div className="flex items-center gap-3">
+              <Globe className="h-5 w-5 text-blue-400" />
+              <div className="flex-1">
+                <p className="text-sm text-blue-300 font-medium">
+                  This is an external article from {article.sourceName || "an external source"}
+                </p>
+                <p className="text-xs text-blue-400/80 mt-1">
+                  Redirecting to the original article...
+                </p>
+              </div>
+              <a
+                href={article.externalUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition flex items-center gap-2"
+              >
+                Read Now
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Featured Image */}
         {article.image && (
           <div className="relative w-full min-h-96 max-h-[600px] overflow-hidden bg-slate-900/50 flex items-center justify-center">
@@ -106,15 +143,22 @@ export default function ArticlePage() {
         {/* Article Content */}
         <div className="p-8 md:p-12">
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-semibold text-white mb-6">
-            {article.title}
-          </h1>
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <h1 className="text-4xl md:text-5xl font-semibold text-white flex-1">
+              {article.title}
+            </h1>
+            {article.source === "external" && (
+              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap">
+                External
+              </span>
+            )}
+          </div>
 
           {/* Meta Information */}
           <div className="flex flex-wrap items-center gap-6 text-sm text-slate-400 mb-8 pb-8 border-b border-white/10">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              <span>{article.author}</span>
+              <span>{article.sourceName || article.author}</span>
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
@@ -133,8 +177,32 @@ export default function ArticlePage() {
             </div>
           </div>
 
-          {/* Author Links */}
-          {(article.telegramLink || article.twitterLink || article.websiteLink) && (
+          {/* External Article CTA */}
+          {article.source === "external" && article.externalUrl && (
+            <div className="mt-12 pt-8 border-t border-white/10">
+              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-6">
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Read the Full Article
+                </h3>
+                <p className="text-sm text-slate-300 mb-4">
+                  This is a preview. Read the complete article on {article.sourceName || "the original source"}.
+                </p>
+                <a
+                  href={article.externalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-blue-500 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-600 transition"
+                >
+                  <Globe className="h-4 w-4" />
+                  Read on {article.sourceName || "Original Source"}
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Author Links - Only for self-published articles */}
+          {article.source !== "external" && (article.telegramLink || article.twitterLink || article.websiteLink) && (
             <div className="mt-12 pt-8 border-t border-white/10">
               <h3 className="text-lg font-semibold text-white mb-4">
                 Connect with the Author
