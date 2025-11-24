@@ -80,7 +80,7 @@ async function fetchFeedArticles(feedConfig: {
       // Use enclosures if available (common in RSS feeds)
       if (item.enclosures && item.enclosures.length > 0) {
         const imageEnclosure = item.enclosures.find(
-          (enc) => enc.type?.startsWith("image/")
+          (enc: { type?: string; url?: string }) => enc.type?.startsWith("image/")
         );
         if (imageEnclosure?.url) {
           image = imageEnclosure.url;
