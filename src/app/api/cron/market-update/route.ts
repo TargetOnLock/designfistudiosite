@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendMarketUpdateToTelegram } from "@/lib/telegram-bot";
 
+// Set runtime to edge for better performance (optional)
+export const runtime = 'nodejs';
+
 /**
  * Cron job endpoint for sending market updates to Telegram
  * This should be called every 6 hours via Vercel Cron Jobs
