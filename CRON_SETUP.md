@@ -91,17 +91,55 @@ You can also trigger it manually by visiting the endpoint URL in your browser or
 
 ### Cron Job Not Running?
 
-1. Check Vercel dashboard → **Cron Jobs** section
-2. Verify the schedule is correct
-3. Check function logs for errors
-4. Make sure environment variables are set
+1. **Check Vercel Dashboard:**
+   - Go to your project → **Settings** → **Cron Jobs**
+   - Verify the cron job is listed and enabled
+   - Check the last run time and status
+
+2. **Verify Schedule:**
+   - The schedule should be: `0 */6 * * *`
+   - This runs at: 00:00, 06:00, 12:00, 18:00 UTC
+
+3. **Check Function Logs:**
+   - Go to **Deployments** → Click on your latest deployment
+   - Click **Functions** → Find `/api/cron/market-update`
+   - Check the logs for errors
+
+4. **Environment Variables:**
+   - Verify `TELEGRAM_BOT_TOKEN` is set in Vercel
+   - Verify `TELEGRAM_CHANNEL_ID` is set in Vercel
+   - Make sure they're set for **Production** environment
 
 ### No Messages in Telegram?
 
-1. Verify `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHANNEL_ID` are set
-2. Check that the bot is an administrator in the channel
-3. Check Vercel function logs for errors
-4. Test the endpoint manually
+1. **Test Manually First:**
+   - Visit: `https://your-domain.vercel.app/api/cron/market-update`
+   - Check the response - it should show `success: true` or an error message
+   - Check Vercel function logs for detailed error messages
+
+2. **Verify Bot Configuration:**
+   - Check `TELEGRAM_BOT_TOKEN` is correct (no extra spaces)
+   - Check `TELEGRAM_CHANNEL_ID` is correct:
+     - For public channels: `@DesignFiStudio` (with @)
+     - For private channels: `-1001234567890` (numeric ID)
+
+3. **Check Bot Permissions:**
+   - The bot must be an **Administrator** in the channel
+   - The bot must have permission to **Post Messages**
+
+4. **Check Logs:**
+   - The function now includes detailed logging
+   - Look for messages like:
+     - "Starting market update fetch..."
+     - "Fetched X cryptocurrencies"
+     - "Sending message to Telegram..."
+     - Any error messages
+
+5. **Common Issues:**
+   - **"Telegram bot not configured"** → Environment variables not set
+   - **"Unauthorized"** → Bot not admin or wrong channel ID
+   - **"Bad Request"** → Message too long or invalid format
+   - **CoinGecko API errors** → Rate limiting or API issues
 
 ### Rate Limits?
 

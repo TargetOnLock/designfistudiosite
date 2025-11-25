@@ -62,11 +62,16 @@ export async function fetchTopCryptos(limit: number = 20): Promise<CryptoPrice[]
     const response = await fetch(
       `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false&price_change_percentage=24h`,
       {
-        next: { revalidate: 300 }, // Cache for 5 minutes
+        headers: {
+          'Accept': 'application/json',
+        },
+        // Remove next.js specific options for API route context
       }
     );
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`CoinGecko API error: ${response.status} - ${errorText}`);
       throw new Error(`CoinGecko API error: ${response.status}`);
     }
 
@@ -86,11 +91,16 @@ export async function fetchGlobalMarketData(): Promise<MarketData | null> {
     const response = await fetch(
       "https://api.coingecko.com/api/v3/global",
       {
-        next: { revalidate: 300 }, // Cache for 5 minutes
+        headers: {
+          'Accept': 'application/json',
+        },
+        // Remove next.js specific options for API route context
       }
     );
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`CoinGecko API error: ${response.status} - ${errorText}`);
       throw new Error(`CoinGecko API error: ${response.status}`);
     }
 
@@ -180,6 +190,12 @@ export function formatCryptoPricesMessage(
       })
       .join("\n");
     message += `${top20List}\n\n`;
+  }
+
+  // Telegram has a 4096 character limit, truncate if needed
+  if (message.length > 4000) {
+    message = message.substring(0, 4000);
+    message += "\n\n_Message truncated due to length limit_";
   }
 
   // Market sentiment

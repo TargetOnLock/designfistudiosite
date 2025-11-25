@@ -210,27 +210,38 @@ export async function sendMarketUpdateToTelegram(): Promise<{
   error?: string;
 }> {
   if (!isTelegramConfigured()) {
-    console.log("Telegram bot not configured, skipping market update");
-    return { success: false, error: "Telegram bot not configured" };
+    const errorMsg = "Telegram bot not configured - missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHANNEL_ID";
+    console.error(errorMsg);
+    return { success: false, error: errorMsg };
   }
 
   const botToken = process.env.TELEGRAM_BOT_TOKEN!;
   const channelId = process.env.TELEGRAM_CHANNEL_ID!;
 
+  console.log("Starting market update fetch...");
+  console.log("Channel ID:", channelId);
+
   try {
     // Import here to avoid circular dependencies
     const { fetchTopCryptos, fetchGlobalMarketData, formatCryptoPricesMessage } = await import("./crypto-prices");
 
+    console.log("Fetching crypto data from CoinGecko...");
+    
     // Fetch crypto prices and market data
     const [cryptos, marketData] = await Promise.all([
       fetchTopCryptos(20),
       fetchGlobalMarketData(),
     ]);
 
+    console.log(`Fetched ${cryptos.length} cryptocurrencies`);
+    console.log("Market data:", marketData ? "Success" : "Failed");
+
     // Format the message
     const message = formatCryptoPricesMessage(cryptos, marketData);
+    console.log(`Message length: ${message.length} characters`);
 
     // Send to Telegram
+    console.log("Sending message to Telegram...");
     const response = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
       {
@@ -250,10 +261,11 @@ export async function sendMarketUpdateToTelegram(): Promise<{
     const data = await response.json();
 
     if (data.ok) {
+      console.log("Market update sent successfully! Message ID:", data.result.message_id);
       return { success: true, messageId: data.result.message_id };
     } else {
-      console.error("Telegram API error:", data);
-      return { success: false, error: data.description || "Unknown error" };
+      console.error("Telegram API error:", JSON.stringify(data, null, 2));
+      return { success: false, error: data.description || `Telegram API error: ${JSON.stringify(data)}` };
     }
   } catch (error) {
     console.error("Error sending market update to Telegram:", error);
