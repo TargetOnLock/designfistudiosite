@@ -55,6 +55,33 @@ function formatLargeNumber(num: number): string {
 }
 
 /**
+ * Escape Markdown special characters for Telegram
+ * This prevents parsing errors when crypto names contain special chars
+ */
+function escapeMarkdown(text: string): string {
+  // Escape special Markdown characters: _ * [ ] ( ) ~ ` > # + - = | { } . !
+  return text
+    .replace(/\_/g, '\\_')
+    .replace(/\*/g, '\\*')
+    .replace(/\[/g, '\\[')
+    .replace(/\]/g, '\\]')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/\~/g, '\\~')
+    .replace(/\`/g, '\\`')
+    .replace(/\>/g, '\\>')
+    .replace(/\#/g, '\\#')
+    .replace(/\+/g, '\\+')
+    .replace(/\-/g, '\\-')
+    .replace(/\=/g, '\\=')
+    .replace(/\|/g, '\\|')
+    .replace(/\{/g, '\\{')
+    .replace(/\}/g, '\\}')
+    .replace(/\./g, '\\.')
+    .replace(/\!/g, '\\!');
+}
+
+/**
  * Fetch top cryptocurrency prices from CoinGecko
  */
 export async function fetchTopCryptos(limit: number = 20): Promise<CryptoPrice[]> {
@@ -163,30 +190,34 @@ export function formatCryptoPricesMessage(
     top5.forEach((crypto) => {
       const emoji = getPriceChangeEmoji(crypto.price_change_percentage_24h);
       const change = crypto.price_change_percentage_24h >= 0 ? "+" : "";
-      message += `${emoji} *${crypto.name}* (${crypto.symbol.toUpperCase()})\n`;
+      const escapedName = escapeMarkdown(crypto.name);
+      const escapedSymbol = escapeMarkdown(crypto.symbol.toUpperCase());
+      message += `${emoji} *${escapedName}* \\(${escapedSymbol}\\)\n`;
       message += `   💵 $${formatNumber(crypto.current_price)}\n`;
-      message += `   📊 ${change}${crypto.price_change_percentage_24h.toFixed(2)}% (24h)\n`;
+      message += `   📊 ${change}${crypto.price_change_percentage_24h.toFixed(2)}% \\(24h\\)\n`;
       message += `   🏅 Rank #${crypto.market_cap_rank}\n\n`;
     });
   }
 
   if (top10.length > 0) {
-    message += `*📈 Top 6-10*\n`;
+    message += `*📈 Top 6\\-10*\n`;
     top10.forEach((crypto) => {
       const emoji = getPriceChangeEmoji(crypto.price_change_percentage_24h);
       const change = crypto.price_change_percentage_24h >= 0 ? "+" : "";
-      message += `${emoji} ${crypto.symbol.toUpperCase()}: $${formatNumber(crypto.current_price)} (${change}${crypto.price_change_percentage_24h.toFixed(2)}%)\n`;
+      const escapedSymbol = escapeMarkdown(crypto.symbol.toUpperCase());
+      message += `${emoji} ${escapedSymbol}: $${formatNumber(crypto.current_price)} \\(${change}${crypto.price_change_percentage_24h.toFixed(2)}%\\)\n`;
     });
     message += `\n`;
   }
 
   if (top20.length > 0) {
-    message += `*📊 Top 11-20*\n`;
+    message += `*📊 Top 11\\-20*\n`;
     const top20List = top20
       .map((crypto) => {
         const emoji = getPriceChangeEmoji(crypto.price_change_percentage_24h);
         const change = crypto.price_change_percentage_24h >= 0 ? "+" : "";
-        return `${emoji} ${crypto.symbol.toUpperCase()}: $${formatNumber(crypto.current_price)} (${change}${crypto.price_change_percentage_24h.toFixed(2)}%)`;
+        const escapedSymbol = escapeMarkdown(crypto.symbol.toUpperCase());
+        return `${emoji} ${escapedSymbol}: $${formatNumber(crypto.current_price)} \\(${change}${crypto.price_change_percentage_24h.toFixed(2)}%\\)`;
       })
       .join("\n");
     message += `${top20List}\n\n`;
@@ -205,7 +236,7 @@ export function formatCryptoPricesMessage(
 
   message += `*📊 Market Sentiment*\n`;
   message += `${sentiment}\n`;
-  message += `Gainers: ${gainers} | Losers: ${losers}\n\n`;
+  message += `Gainers: ${gainers} \\| Losers: ${losers}\n\n`;
 
   message += `_Data provided by CoinGecko_\n`;
   message += `#Crypto #MarketUpdate #Blockchain #Web3`;
