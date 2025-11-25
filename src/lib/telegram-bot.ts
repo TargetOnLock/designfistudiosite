@@ -167,7 +167,7 @@ async function sendTextOnlyMessage(
   botToken: string,
   channelId: string,
   message: string,
-  articleUrl: string
+  articleUrl?: string
 ): Promise<{ success: boolean; messageId?: number; error?: string }> {
   try {
     const response = await fetch(
@@ -196,6 +196,67 @@ async function sendTextOnlyMessage(
     }
   } catch (error) {
     console.error("Error sending text message to Telegram:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * Send market update message to Telegram channel
+ */
+export async function sendMarketUpdateToTelegram(): Promise<{
+  success: boolean;
+  messageId?: number;
+  error?: string;
+}> {
+  if (!isTelegramConfigured()) {
+    console.log("Telegram bot not configured, skipping market update");
+    return { success: false, error: "Telegram bot not configured" };
+  }
+
+  const botToken = process.env.TELEGRAM_BOT_TOKEN!;
+  const channelId = process.env.TELEGRAM_CHANNEL_ID!;
+
+  try {
+    // Import here to avoid circular dependencies
+    const { fetchTopCryptos, fetchGlobalMarketData, formatCryptoPricesMessage } = await import("./crypto-prices");
+
+    // Fetch crypto prices and market data
+    const [cryptos, marketData] = await Promise.all([
+      fetchTopCryptos(20),
+      fetchGlobalMarketData(),
+    ]);
+
+    // Format the message
+    const message = formatCryptoPricesMessage(cryptos, marketData);
+
+    // Send to Telegram
+    const response = await fetch(
+      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: channelId,
+          text: message,
+          parse_mode: "Markdown",
+          disable_web_page_preview: false,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.ok) {
+      return { success: true, messageId: data.result.message_id };
+    } else {
+      console.error("Telegram API error:", data);
+      return { success: false, error: data.description || "Unknown error" };
+    }
+  } catch (error) {
+    console.error("Error sending market update to Telegram:", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return { success: false, error: errorMessage };
   }
