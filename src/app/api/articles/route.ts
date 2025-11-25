@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { supabase } from "@/lib/supabase";
+import { sendArticleToTelegram } from "@/lib/telegram-bot";
 
 // Fallback in-memory store if Supabase is not configured
 const articlesStore: Array<{
@@ -250,21 +251,29 @@ export async function POST(request: NextRequest) {
       }
 
       console.log("Article saved to Supabase:", data.id);
+      
       // Convert back to camelCase for response
-      return NextResponse.json(
-        {
-          id: data.id,
-          title: data.title,
-          content: data.content,
-          image: data.image,
-          telegramLink: data.telegram_link,
-          twitterLink: data.twitter_link,
-          websiteLink: data.website_link,
-          publishedAt: data.published_at,
-          author: data.author,
-        },
-        { status: 201 }
-      );
+      const savedArticle = {
+        id: data.id,
+        title: data.title,
+        content: data.content,
+        image: data.image,
+        telegramLink: data.telegram_link,
+        twitterLink: data.twitter_link,
+        websiteLink: data.website_link,
+        publishedAt: data.published_at,
+        author: data.author,
+        source: "self-published" as const,
+      };
+
+      // Send to Telegram channel (non-blocking)
+      const articleUrl = `${request.nextUrl.origin}/articles/${savedArticle.id}`;
+      sendArticleToTelegram(savedArticle, articleUrl).catch((error) => {
+        console.error("Failed to send article to Telegram:", error);
+        // Don't fail the request if Telegram fails
+      });
+
+      return NextResponse.json(savedArticle, { status: 201 });
     } else {
       // Fallback to in-memory store
       const articleForStore = {
@@ -282,6 +291,17 @@ export async function POST(request: NextRequest) {
       articlesStore.unshift(articleForStore);
       console.log("Article saved to in-memory store:", articleForStore.id);
       console.log("Total articles in store:", articlesStore.length);
+
+      // Send to Telegram channel (non-blocking)
+      const articleUrl = `${request.nextUrl.origin}/articles/${articleForStore.id}`;
+      const articleWithSource = {
+        ...articleForStore,
+        source: "self-published" as const,
+      };
+      sendArticleToTelegram(articleWithSource, articleUrl).catch((error) => {
+        console.error("Failed to send article to Telegram:", error);
+        // Don't fail the request if Telegram fails
+      });
 
       return NextResponse.json(articleForStore, { status: 201 });
     }
