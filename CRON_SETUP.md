@@ -4,7 +4,7 @@ The Telegram bot will automatically post crypto market updates every 6 hours to 
 
 ## What It Does
 
-Every 6 hours, the bot will post:
+Once per day (at 12:00 UTC), the bot will post:
 - 📊 Global market data (total market cap, 24h volume, market change)
 - 💰 Top 20 cryptocurrencies with prices and 24h changes
 - 📈 Market sentiment (bullish/bearish/neutral)
@@ -16,8 +16,10 @@ Every 6 hours, the bot will post:
 ### Automatic Setup (Vercel)
 
 The `vercel.json` file is already configured with the cron job schedule:
-- **Schedule:** Every 6 hours (`0 */6 * * *`)
+- **Schedule:** Once per day at 12:00 UTC (`0 12 * * *`)
 - **Endpoint:** `/api/cron/market-update`
+
+**Note:** Vercel Hobby plan limits cron jobs to once per day. If you need more frequent updates, upgrade to Pro plan.
 
 When you deploy to Vercel, the cron job will be automatically set up.
 
@@ -27,19 +29,23 @@ When you deploy to Vercel, the cron job will be automatically set up.
 2. Navigate to **Settings** → **Cron Jobs**
 3. Add a new cron job:
    - **Path:** `/api/cron/market-update`
-   - **Schedule:** `0 */6 * * *` (every 6 hours at minute 0)
+   - **Schedule:** `0 12 * * *` (once per day at 12:00 UTC)
    - **Timezone:** UTC (default)
 
 ### Schedule Format
 
-The cron schedule `0 */6 * * *` means:
+The cron schedule `0 12 * * *` means:
 - `0` - At minute 0
-- `*/6` - Every 6 hours
+- `12` - At hour 12 (12:00 PM)
 - `*` - Every day of month
 - `*` - Every month
 - `*` - Every day of week
 
-This will run at: 00:00, 06:00, 12:00, 18:00 UTC
+This will run once per day at: **12:00 UTC** (noon UTC)
+
+**Vercel Hobby Plan Limitation:**
+- Hobby plan allows only **1 cron job per day**
+- To run more frequently (e.g., every 6 hours), upgrade to **Pro plan**
 
 ### Optional: Add Security
 
@@ -53,29 +59,42 @@ To secure your cron endpoint, you can add a `CRON_SECRET` environment variable:
 
 ## Testing
 
+### Test Immediately After Deployment
+
+**You can test the market update right away!** Just visit this URL in your browser:
+
+```
+https://your-domain.vercel.app/api/cron/market-update
+```
+
+This will:
+1. Fetch current crypto prices
+2. Format the market update
+3. Post to your Telegram channel immediately
+4. Return a JSON response
+
+**No need to wait for the scheduled time!** You can test it anytime by visiting the URL.
+
 ### Test Locally
 
-You can test the endpoint manually:
+You can also test locally:
 
 ```bash
+# Start dev server
+npm run dev
+
 # Test the endpoint
 curl http://localhost:3000/api/cron/market-update
 ```
 
-### Test on Vercel
+### Check Your Telegram Channel
 
-1. Deploy your application
-2. Visit: `https://your-domain.vercel.app/api/cron/market-update`
-3. Check your Telegram channel for the market update
-
-### Manual Trigger
-
-You can also trigger it manually by visiting the endpoint URL in your browser or using curl.
+After testing, check your Telegram channel [@DesignFiStudio](https://t.me/DesignFiStudio) - you should see the market update message!
 
 ## Data Source
 
 - **API:** CoinGecko (free tier)
-- **Update Frequency:** Every 6 hours
+- **Update Frequency:** Once per day (12:00 UTC)
 - **Data Cached:** 5 minutes (to avoid rate limits)
 
 ## Features
@@ -85,7 +104,7 @@ You can also trigger it manually by visiting the endpoint URL in your browser or
 ✅ Global market data  
 ✅ Market sentiment analysis  
 ✅ Formatted with emojis for better readability  
-✅ Automatic posting every 6 hours  
+✅ Automatic posting once per day (12:00 UTC)  
 
 ## Troubleshooting
 
@@ -150,7 +169,12 @@ CoinGecko free tier has rate limits. The code includes caching to minimize reque
 ## Customization
 
 You can customize:
-- **Update frequency:** Change the schedule in `vercel.json`
+- **Update frequency:** Change the schedule in `vercel.json` (Hobby plan limited to once per day)
+- **Update time:** Change `12` in `0 12 * * *` to your preferred hour (0-23 UTC)
 - **Number of cryptos:** Edit `fetchTopCryptos(20)` in the cron route
 - **Message format:** Edit `formatCryptoPricesMessage()` in `src/lib/crypto-prices.ts`
+
+**To run more than once per day:**
+- Upgrade to Vercel Pro plan
+- Then change schedule to `0 */6 * * *` for every 6 hours
 

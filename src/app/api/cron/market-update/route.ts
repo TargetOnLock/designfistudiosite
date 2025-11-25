@@ -6,14 +6,18 @@ export const runtime = 'nodejs';
 
 /**
  * Cron job endpoint for sending market updates to Telegram
- * This should be called every 6 hours via Vercel Cron Jobs
  * 
- * To set up in Vercel:
- * 1. Go to your project settings
- * 2. Navigate to "Cron Jobs"
- * 3. Add a new cron job:
- *    - Path: /api/cron/market-update
- *    - Schedule: 0 */6 * * * (every 6 hours)
+ * This endpoint:
+ * - Can be called manually anytime to test: GET /api/cron/market-update
+ * - Runs automatically once per day at 12:00 UTC via Vercel Cron Jobs
+ * 
+ * To test immediately after deployment:
+ * Just visit: https://your-domain.vercel.app/api/cron/market-update
+ * 
+ * Cron schedule: 0 12 * * * (once per day at 12:00 UTC)
+ * 
+ * Note: Vercel Hobby plan limits to 1 cron job per day.
+ * For more frequent updates, upgrade to Pro plan.
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
