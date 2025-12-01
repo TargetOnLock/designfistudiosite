@@ -113,21 +113,141 @@ function getFallbackContent(type: "fact" | "tip" | "joke" | "random"): string {
 }
 
 /**
- * Generate multiple marketing posts (4 posts with variety)
+ * Generate crypto market update post for X/Twitter
+ */
+export async function generateCryptoMarketUpdatePost(): Promise<string> {
+  try {
+    // Import crypto prices utilities
+    const { fetchTopCryptos, fetchGlobalMarketData } = await import("./crypto-prices");
+    
+    // Fetch crypto data
+    const [cryptos, marketData] = await Promise.all([
+      fetchTopCryptos(5),
+      fetchGlobalMarketData(),
+    ]);
+
+    // Format for X/Twitter (concise format)
+    let post = "📊 Crypto Market Update\n\n";
+    
+    if (marketData) {
+      const marketEmoji = marketData.market_cap_change_percentage_24h > 0 ? "🚀" : marketData.market_cap_change_percentage_24h > -2 ? "📈" : "🔴";
+      const marketCapT = (marketData.total_market_cap / 1e12).toFixed(2);
+      const change = marketData.market_cap_change_percentage_24h >= 0 ? "+" : "";
+      post += `🌍 Market: $${marketCapT}T ${marketEmoji} ${change}${marketData.market_cap_change_percentage_24h.toFixed(2)}%\n\n`;
+    }
+
+    // Top 5 cryptos (compact format with $ ticker symbols)
+    post += "💰 Top 5:\n";
+    cryptos.slice(0, 5).forEach((crypto) => {
+      const emoji = crypto.price_change_percentage_24h > 0 ? "🟢" : "🔴";
+      const change = crypto.price_change_percentage_24h >= 0 ? "+" : "";
+      const price = crypto.current_price < 1 
+        ? crypto.current_price.toFixed(4) 
+        : crypto.current_price.toFixed(2);
+      const ticker = `$${crypto.symbol.toUpperCase()}`;
+      post += `${ticker} $${price} ${emoji} ${change}${crypto.price_change_percentage_24h.toFixed(2)}%\n`;
+    });
+
+    post += "\n#Crypto #MarketUpdate #Web3";
+    
+    // Ensure within 280 character limit
+    if (post.length > 280) {
+      // Truncate and keep essential info
+      post = "📊 Crypto Market Update\n\n";
+      if (marketData) {
+        const marketEmoji = marketData.market_cap_change_percentage_24h > 0 ? "🚀" : "🔴";
+        const marketCapT = (marketData.total_market_cap / 1e12).toFixed(2);
+        const change = marketData.market_cap_change_percentage_24h >= 0 ? "+" : "";
+        post += `Market: $${marketCapT}T ${marketEmoji} ${change}${marketData.market_cap_change_percentage_24h.toFixed(2)}%\n\n`;
+      }
+      post += "Top 3: ";
+      cryptos.slice(0, 3).forEach((crypto, i) => {
+        const emoji = crypto.price_change_percentage_24h > 0 ? "🟢" : "🔴";
+        const change = crypto.price_change_percentage_24h >= 0 ? "+" : "";
+        const ticker = `$${crypto.symbol.toUpperCase()}`;
+        post += `${ticker} ${change}${crypto.price_change_percentage_24h.toFixed(1)}% ${emoji}${i < 2 ? " " : ""}`;
+      });
+      post += "\n\n#Crypto #MarketUpdate";
+    }
+    
+    return post;
+  } catch (error) {
+    console.error("Error generating crypto market update:", error);
+    return "📊 Crypto markets are active today! Check out the latest prices and trends. #Crypto #MarketUpdate #Web3";
+  }
+}
+
+/**
+ * Generate website promotion post
+ */
+export async function generateWebsitePromoPost(): Promise<string> {
+  if (isOpenAIConfigured()) {
+    try {
+      const client = getOpenAIClient();
+      
+      const completion = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "You are a creative social media manager for DesignFi Studio, a Web3 and crypto marketing agency. Create engaging, comical marketing posts that promote the website designfi.studio.",
+          },
+          {
+            role: "user",
+            content: "Create an engaging marketing post that encourages people to visit designfi.studio. Make it comical, entertaining, and highlight our Web3/crypto marketing services. Include the website URL. Keep it under 250 characters. Include emojis.",
+          },
+        ],
+        max_tokens: 150,
+        temperature: 0.9,
+      });
+
+      const content = completion.choices[0]?.message?.content?.trim() || "";
+      
+      if (content && content.length <= 280) {
+        return content;
+      }
+    } catch (error) {
+      console.error("Error generating website promo:", error);
+    }
+  }
+
+  // Fallback content
+  const fallbackPromos = [
+    "🚀 Ready to level up your Web3 marketing? Visit designfi.studio for cutting-edge crypto marketing strategies that actually work! 💎 #Web3Marketing #CryptoMarketing",
+    "💡 Your crypto project deserves better marketing. Check out designfi.studio for Web3 marketing that gets results! 🎯 #DesignFi #CryptoMarketing",
+    "🎨 Need help with your Web3 brand? DesignFi Studio has you covered! Visit designfi.studio to see how we help crypto projects shine ✨ #Web3 #Branding",
+    "📈 Stop guessing, start growing! Visit designfi.studio for proven Web3 marketing strategies that drive real results 🚀 #Marketing #Web3",
+  ];
+
+  return fallbackPromos[Math.floor(Math.random() * fallbackPromos.length)];
+}
+
+/**
+ * Generate multiple marketing posts (4 posts: crypto update, website promo, and 2 regular marketing posts)
  */
 export async function generateDailyMarketingPosts(): Promise<string[]> {
-  const types: Array<"fact" | "tip" | "joke" | "random"> = ["fact", "tip", "joke", "random"];
-  
-  // Shuffle the types for variety
-  const shuffled = types.sort(() => Math.random() - 0.5);
-  
   const posts: string[] = [];
   
+  // 1. Crypto market update
+  console.log("Generating crypto market update post...");
+  const cryptoPost = await generateCryptoMarketUpdatePost();
+  posts.push(cryptoPost);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+  // 2. Website promotion
+  console.log("Generating website promotion post...");
+  const promoPost = await generateWebsitePromoPost();
+  posts.push(promoPost);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+  // 3 & 4. Two regular marketing posts (shuffle types for variety)
+  const types: Array<"fact" | "tip" | "joke" | "random"> = ["fact", "tip", "joke", "random"];
+  const shuffled = types.sort(() => Math.random() - 0.5).slice(0, 2);
+  
   for (const type of shuffled) {
+    console.log(`Generating ${type} marketing post...`);
     const post = await generateMarketingContent(type);
     posts.push(post);
-    
-    // Small delay between generations to avoid rate limits
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
   

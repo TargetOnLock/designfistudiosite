@@ -1,6 +1,9 @@
 /**
  * X/Twitter Bot Cron Job
- * Posts 4 marketing tweets per day with AI-generated content
+ * Posts 4 tweets per day:
+ * 1. Crypto market update
+ * 2. Website promotion (designfi.studio)
+ * 3-4. Marketing posts (facts, tips, jokes, or insights)
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -44,8 +47,8 @@ export async function GET(request: NextRequest) {
       console.log("OpenAI not configured, using fallback content");
     }
 
-    // Generate 4 marketing posts
-    console.log("Generating marketing posts...");
+    // Generate 4 posts: crypto update, website promo, and 2 marketing posts
+    console.log("Generating posts (crypto update, website promo, and 2 marketing posts)...");
     const posts = await generateDailyMarketingPosts();
     console.log(`Generated ${posts.length} posts`);
 
