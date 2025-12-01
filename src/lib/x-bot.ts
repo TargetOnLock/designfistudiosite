@@ -38,7 +38,7 @@ function getTwitterClient() {
  */
 export async function postTweet(
   text: string
-): Promise<{ success: boolean; tweetId?: string; error?: string }> {
+): Promise<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> {
   if (!isXBotConfigured()) {
     console.log("X/Twitter bot not configured, skipping tweet");
     return { success: false, error: "X/Twitter bot not configured" };
@@ -84,8 +84,8 @@ export async function postTweet(
 export async function postMultipleTweets(
   tweets: string[],
   delayMs: number = 30000 // 30 seconds default delay
-): Promise<{ success: boolean; results: Array<{ success: boolean; tweetId?: string; error?: string }> }> {
-  const results: Array<{ success: boolean; tweetId?: string; error?: string }> = [];
+): Promise<{ success: boolean; results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> }> {
+  const results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> = [];
 
   for (let i = 0; i < tweets.length; i++) {
     const result = await postTweet(tweets[i]);
