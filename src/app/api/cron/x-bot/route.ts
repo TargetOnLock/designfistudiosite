@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { postMultipleTweets } from "@/lib/x-bot";
 import { generateDailyMarketingPosts } from "@/lib/ai-content-generator";
+import { sendTweetLinksToTelegram } from "@/lib/telegram-bot";
 
 export const runtime = "nodejs";
 
@@ -59,6 +60,30 @@ export async function GET(request: NextRequest) {
     console.log("Posting tweets to X/Twitter with 1.3-second delays (maximum for Hobby plan)...");
     const result = await postMultipleTweets(posts, 1300); // 1.3 seconds between tweets - maximum delay for 10s timeout
 
+    // Collect successful tweet links
+    const successfulTweets = result.results
+      .filter((r) => r.success && r.tweetId && r.tweetUrl)
+      .map((r, index) => ({
+        text: posts[index] || "Tweet",
+        url: r.tweetUrl!,
+      }));
+
+    // Send tweet links to Telegram if any tweets were posted successfully
+    if (successfulTweets.length > 0) {
+      console.log(`Sending ${successfulTweets.length} tweet links to Telegram...`);
+      try {
+        const telegramResult = await sendTweetLinksToTelegram(successfulTweets);
+        if (telegramResult.success) {
+          console.log("Tweet links sent to Telegram successfully");
+        } else {
+          console.error("Failed to send tweet links to Telegram:", telegramResult.error);
+        }
+      } catch (error) {
+        console.error("Error sending tweet links to Telegram:", error);
+        // Don't fail the entire job if Telegram fails
+      }
+    }
+
     const duration = Date.now() - startTime;
 
     if (result.success) {
@@ -70,6 +95,10 @@ export async function GET(request: NextRequest) {
         tweetIds: result.results
           .filter((r) => r.tweetId)
           .map((r) => r.tweetId),
+        tweetUrls: result.results
+          .filter((r) => r.tweetUrl)
+          .map((r) => r.tweetUrl),
+        telegramSent: successfulTweets.length > 0,
         timestamp: new Date().toISOString(),
         duration: `${duration}ms`,
       });

@@ -34,11 +34,42 @@ function getTwitterClient() {
 }
 
 /**
+ * Get the authenticated user's username
+ */
+export async function getTwitterUsername(): Promise<string | null> {
+  if (!isXBotConfigured()) {
+    return null;
+  }
+
+  try {
+    const client = getTwitterClient();
+    const rwClient = client.readWrite;
+    
+    const me = await rwClient.v2.me();
+    return me.data.username || null;
+  } catch (error) {
+    console.error("Error getting Twitter username:", error);
+    return null;
+  }
+}
+
+/**
+ * Get tweet URL from tweet ID and username
+ */
+export function getTweetUrl(tweetId: string, username?: string | null): string {
+  if (username) {
+    return `https://x.com/${username}/status/${tweetId}`;
+  }
+  // Fallback: use tweet ID only (will redirect to the correct URL)
+  return `https://x.com/i/web/status/${tweetId}`;
+}
+
+/**
  * Post a tweet to X/Twitter
  */
 export async function postTweet(
   text: string
-): Promise<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> {
+): Promise<{ success: boolean; tweetId?: string; tweetUrl?: string; error?: string; errorCode?: number }> {
   if (!isXBotConfigured()) {
     console.log("X/Twitter bot not configured, skipping tweet");
     return { success: false, error: "X/Twitter bot not configured" };
@@ -56,7 +87,12 @@ export async function postTweet(
     });
 
     console.log("Tweet posted successfully:", tweet.data.id);
-    return { success: true, tweetId: tweet.data.id };
+    
+    // Note: Username will be fetched once in postMultipleTweets to avoid multiple API calls
+    // For single tweets, we'll construct URL without username (fallback format)
+    const tweetUrl = getTweetUrl(tweet.data.id, null);
+    
+    return { success: true, tweetId: tweet.data.id, tweetUrl };
   } catch (error: any) {
     console.error("Error posting tweet:", error);
     
@@ -87,11 +123,24 @@ export async function postTweet(
 export async function postMultipleTweets(
   tweets: string[],
   delayMs: number = 0 // Default no delay to avoid Vercel timeout
-): Promise<{ success: boolean; results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> }> {
-  const results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> = [];
+): Promise<{ success: boolean; results: Array<{ success: boolean; tweetId?: string; tweetUrl?: string; error?: string; errorCode?: number }> }> {
+  const results: Array<{ success: boolean; tweetId?: string; tweetUrl?: string; error?: string; errorCode?: number }> = [];
+  
+  // Get username once to reuse for all tweets
+  let username: string | null = null;
+  try {
+    username = await getTwitterUsername();
+  } catch (error) {
+    console.log("Could not fetch username, will use fallback URLs");
+  }
 
   for (let i = 0; i < tweets.length; i++) {
     let result = await postTweet(tweets[i]);
+    
+    // If we got a tweet ID but no URL, construct it now
+    if (result.success && result.tweetId && !result.tweetUrl) {
+      result.tweetUrl = getTweetUrl(result.tweetId, username);
+    }
     
     // If rate limited (429), skip remaining tweets
     if (result.errorCode === 429) {

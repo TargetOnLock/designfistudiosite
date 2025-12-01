@@ -202,6 +202,65 @@ async function sendTextOnlyMessage(
 }
 
 /**
+ * Send tweet links to Telegram channel
+ */
+export async function sendTweetLinksToTelegram(
+  tweetLinks: Array<{ text: string; url: string }>
+): Promise<{ success: boolean; messageId?: number; error?: string }> {
+  if (!isTelegramConfigured()) {
+    console.log("Telegram bot not configured, skipping tweet links");
+    return { success: false, error: "Telegram bot not configured" };
+  }
+
+  const botToken = process.env.TELEGRAM_BOT_TOKEN!;
+  const channelId = process.env.TELEGRAM_CHANNEL_ID!;
+
+  try {
+    let message = "🐦 *New Tweets Posted on X/Twitter*\n\n";
+    
+    tweetLinks.forEach((tweet, index) => {
+      // Truncate tweet text for preview (first 100 chars)
+      const preview = tweet.text.length > 100 
+        ? tweet.text.substring(0, 100) + "..."
+        : tweet.text;
+      message += `${index + 1}. ${preview}\n🔗 [View Tweet](${tweet.url})\n\n`;
+    });
+
+    message += "#DesignFi #Web3 #Crypto";
+
+    const response = await fetch(
+      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: channelId,
+          text: message,
+          parse_mode: "Markdown",
+          disable_web_page_preview: false,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.ok) {
+      console.log("Tweet links sent to Telegram successfully! Message ID:", data.result.message_id);
+      return { success: true, messageId: data.result.message_id };
+    } else {
+      console.error("Telegram API error:", JSON.stringify(data, null, 2));
+      return { success: false, error: data.description || `Telegram API error: ${JSON.stringify(data)}` };
+    }
+  } catch (error) {
+    console.error("Error sending tweet links to Telegram:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
  * Send market update message to Telegram channel
  */
 export async function sendMarketUpdateToTelegram(): Promise<{
