@@ -57,10 +57,24 @@ export async function postTweet(
 
     console.log("Tweet posted successfully:", tweet.data.id);
     return { success: true, tweetId: tweet.data.id };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error posting tweet:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return { success: false, error: errorMessage };
+    
+    // Extract more detailed error information
+    let errorMessage = error instanceof Error ? error.message : String(error);
+    let errorCode = error?.code;
+    let errorData = error?.data;
+    
+    // Handle Twitter API v2 errors
+    if (error?.code === 403) {
+      errorMessage = "403 Forbidden - Check that your Twitter app has Read and Write permissions and Elevated access. See X_BOT_TROUBLESHOOTING.md for details.";
+    } else if (error?.code === 401) {
+      errorMessage = "401 Unauthorized - Check that your Twitter API credentials are correct.";
+    } else if (errorData) {
+      errorMessage = `${errorMessage} (Details: ${JSON.stringify(errorData)})`;
+    }
+    
+    return { success: false, error: errorMessage, errorCode };
   }
 }
 
