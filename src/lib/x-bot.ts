@@ -81,30 +81,22 @@ export async function postTweet(
 }
 
 /**
- * Post multiple tweets with delays between them
+ * Post multiple tweets with optional delays between them
  * Includes retry logic for rate limits
  */
 export async function postMultipleTweets(
   tweets: string[],
-  delayMs: number = 180000 // 3 minutes default delay (180000ms) to avoid rate limits
+  delayMs: number = 0 // Default no delay to avoid Vercel timeout
 ): Promise<{ success: boolean; results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> }> {
   const results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> = [];
 
   for (let i = 0; i < tweets.length; i++) {
     let result = await postTweet(tweets[i]);
     
-    // If rate limited (429), wait longer and retry once
-    if (result.errorCode === 429 && i < tweets.length - 1) {
-      console.log("Rate limit hit, waiting 5 minutes before retry...");
-      await new Promise((resolve) => setTimeout(resolve, 300000)); // Wait 5 minutes
-      result = await postTweet(tweets[i]); // Retry once
-    }
-    
-    results.push(result);
-
-    // If we got rate limited, stop posting more tweets
+    // If rate limited (429), skip remaining tweets
     if (result.errorCode === 429) {
       console.log("Rate limit exceeded. Stopping further posts. Remaining tweets will be skipped.");
+      results.push(result);
       // Fill remaining slots with rate limit errors
       for (let j = i + 1; j < tweets.length; j++) {
         results.push({
@@ -115,10 +107,12 @@ export async function postMultipleTweets(
       }
       break;
     }
+    
+    results.push(result);
 
-    // Wait before posting next tweet (except for the last one)
-    if (i < tweets.length - 1) {
-      console.log(`Waiting ${delayMs / 1000 / 60} minutes before next tweet...`);
+    // Wait before posting next tweet (only if delay is specified and not the last tweet)
+    if (delayMs > 0 && i < tweets.length - 1) {
+      console.log(`Waiting ${delayMs / 1000} seconds before next tweet...`);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }

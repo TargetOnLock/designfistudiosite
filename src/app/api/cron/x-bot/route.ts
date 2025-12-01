@@ -52,10 +52,11 @@ export async function GET(request: NextRequest) {
     const posts = await generateDailyMarketingPosts();
     console.log(`Generated ${posts.length} posts`);
 
-    // Post tweets with 3-minute delay between each (to avoid rate limits)
-    // Twitter rate limits: 1,500 tweets/month, ~50/day, ~2/hour
-    console.log("Posting tweets to X/Twitter...");
-    const result = await postMultipleTweets(posts, 180000); // 3 minutes (180000ms) between tweets
+    // Post all tweets immediately (no delays to avoid Vercel timeout)
+    // Twitter rate limits: 1,500 tweets/month, ~50/day
+    // Posting 4 tweets at once is well within limits
+    console.log("Posting tweets to X/Twitter (no delays to avoid timeout)...");
+    const result = await postMultipleTweets(posts, 0); // No delay - post immediately
 
     const duration = Date.now() - startTime;
 
