@@ -52,9 +52,10 @@ export async function GET(request: NextRequest) {
     const posts = await generateDailyMarketingPosts();
     console.log(`Generated ${posts.length} posts`);
 
-    // Post tweets with 30-second delay between each (to avoid rate limits)
+    // Post tweets with 3-minute delay between each (to avoid rate limits)
+    // Twitter rate limits: 1,500 tweets/month, ~50/day, ~2/hour
     console.log("Posting tweets to X/Twitter...");
-    const result = await postMultipleTweets(posts, 30000); // 30 seconds between tweets
+    const result = await postMultipleTweets(posts, 180000); // 3 minutes (180000ms) between tweets
 
     const duration = Date.now() - startTime;
 

@@ -62,14 +62,16 @@ export async function postTweet(
     
     // Extract more detailed error information
     let errorMessage = error instanceof Error ? error.message : String(error);
-    let errorCode = error?.code;
+    let errorCode = error?.code || error?.status;
     let errorData = error?.data;
     
     // Handle Twitter API v2 errors
-    if (error?.code === 403) {
+    if (errorCode === 403) {
       errorMessage = "403 Forbidden - Check that your Twitter app has Read and Write permissions and Elevated access. See X_BOT_TROUBLESHOOTING.md for details.";
-    } else if (error?.code === 401) {
+    } else if (errorCode === 401) {
       errorMessage = "401 Unauthorized - Check that your Twitter API credentials are correct.";
+    } else if (errorCode === 429) {
+      errorMessage = "429 Too Many Requests - Twitter rate limit exceeded. Wait before trying again. Rate limits reset every 15 minutes.";
     } else if (errorData) {
       errorMessage = `${errorMessage} (Details: ${JSON.stringify(errorData)})`;
     }
@@ -80,20 +82,43 @@ export async function postTweet(
 
 /**
  * Post multiple tweets with delays between them
+ * Includes retry logic for rate limits
  */
 export async function postMultipleTweets(
   tweets: string[],
-  delayMs: number = 30000 // 30 seconds default delay
+  delayMs: number = 180000 // 3 minutes default delay (180000ms) to avoid rate limits
 ): Promise<{ success: boolean; results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> }> {
   const results: Array<{ success: boolean; tweetId?: string; error?: string; errorCode?: number }> = [];
 
   for (let i = 0; i < tweets.length; i++) {
-    const result = await postTweet(tweets[i]);
+    let result = await postTweet(tweets[i]);
+    
+    // If rate limited (429), wait longer and retry once
+    if (result.errorCode === 429 && i < tweets.length - 1) {
+      console.log("Rate limit hit, waiting 5 minutes before retry...");
+      await new Promise((resolve) => setTimeout(resolve, 300000)); // Wait 5 minutes
+      result = await postTweet(tweets[i]); // Retry once
+    }
+    
     results.push(result);
+
+    // If we got rate limited, stop posting more tweets
+    if (result.errorCode === 429) {
+      console.log("Rate limit exceeded. Stopping further posts. Remaining tweets will be skipped.");
+      // Fill remaining slots with rate limit errors
+      for (let j = i + 1; j < tweets.length; j++) {
+        results.push({
+          success: false,
+          error: "429 Rate limit exceeded - skipped to avoid further rate limiting",
+          errorCode: 429,
+        });
+      }
+      break;
+    }
 
     // Wait before posting next tweet (except for the last one)
     if (i < tweets.length - 1) {
-      console.log(`Waiting ${delayMs / 1000} seconds before next tweet...`);
+      console.log(`Waiting ${delayMs / 1000 / 60} minutes before next tweet...`);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
