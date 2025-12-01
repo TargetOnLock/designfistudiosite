@@ -52,11 +52,12 @@ export async function GET(request: NextRequest) {
     const posts = await generateDailyMarketingPosts();
     console.log(`Generated ${posts.length} posts`);
 
-    // Post all tweets immediately (no delays to avoid Vercel timeout)
-    // Twitter rate limits: 1,500 tweets/month, ~50/day
-    // Posting 4 tweets at once is well within limits
-    console.log("Posting tweets to X/Twitter (no delays to avoid timeout)...");
-    const result = await postMultipleTweets(posts, 0); // No delay - post immediately
+    // Post tweets with maximum delay possible while staying under Vercel's 10-second timeout (Hobby plan)
+    // Calculation: ~2s content generation + ~4s (4 tweets × 1s) + 3 delays = ~6s + 3X < 10s
+    // Maximum delay: ~1.3 seconds per delay (3 × 1.3 = 3.9s, total ~9.9s - safe margin)
+    // Using 1300ms (1.3 seconds) - maximum delay without upgrading Vercel
+    console.log("Posting tweets to X/Twitter with 1.3-second delays (maximum for Hobby plan)...");
+    const result = await postMultipleTweets(posts, 1300); // 1.3 seconds between tweets - maximum delay for 10s timeout
 
     const duration = Date.now() - startTime;
 
@@ -74,15 +75,21 @@ export async function GET(request: NextRequest) {
       });
     } else {
       console.error("Some tweets failed to post");
+      const rateLimited = result.results.some((r) => r.errorCode === 429);
+      const errorMessage = rateLimited
+        ? "Rate limit exceeded. Twitter rate limits reset every 15 minutes. Wait before trying again."
+        : "Some tweets failed to post";
+      
       return NextResponse.json(
         {
           success: false,
-          error: "Some tweets failed to post",
+          error: errorMessage,
           results: result.results,
+          rateLimited,
           timestamp: new Date().toISOString(),
           duration: `${duration}ms`,
         },
-        { status: 500 }
+        { status: rateLimited ? 429 : 500 }
       );
     }
   } catch (error) {
