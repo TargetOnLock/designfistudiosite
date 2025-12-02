@@ -31,31 +31,9 @@ export default function ArticlesPage() {
         setArticles(data);
       } else {
         console.error("Failed to load articles");
-        // Fallback to localStorage if API fails
-        if (typeof window !== "undefined") {
-          const storedArticles = localStorage.getItem("publishedArticles");
-          if (storedArticles) {
-            try {
-              setArticles(JSON.parse(storedArticles));
-            } catch (error) {
-              console.error("Error loading from localStorage:", error);
-            }
-          }
-        }
       }
     } catch (error) {
       console.error("Error loading articles:", error);
-      // Fallback to localStorage
-      if (typeof window !== "undefined") {
-        const storedArticles = localStorage.getItem("publishedArticles");
-        if (storedArticles) {
-          try {
-            setArticles(JSON.parse(storedArticles));
-          } catch (e) {
-            console.error("Error loading from localStorage:", e);
-          }
-        }
-      }
     } finally {
       setIsLoading(false);
     }

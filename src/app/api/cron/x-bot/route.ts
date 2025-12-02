@@ -8,8 +8,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { postMultipleTweets } from "@/lib/x-bot";
-import { generateDailyMarketingPosts } from "@/lib/ai-content-generator";
+import { generateDailyMarketingPosts, generateMarketingContent, generateCryptoMarketUpdatePost, generateWebsitePromoPost } from "@/lib/ai-content-generator";
 import { sendTweetLinksToTelegram } from "@/lib/telegram-bot";
+import { hasTweetBeenPosted, recordPostedTweet, filterDuplicateTweets } from "@/lib/tweet-tracker";
 
 export const runtime = "nodejs";
 
@@ -50,8 +51,50 @@ export async function GET(request: NextRequest) {
 
     // Generate 4 posts: crypto update, website promo, and 2 marketing posts
     console.log("Generating posts (crypto update, website promo, and 2 marketing posts)...");
-    const posts = await generateDailyMarketingPosts();
+    let posts = await generateDailyMarketingPosts();
     console.log(`Generated ${posts.length} posts`);
+
+    // Check for duplicates and regenerate if needed
+    console.log("Checking for duplicate tweets...");
+    const uniquePosts: string[] = [];
+    const maxRetries = 3; // Maximum attempts to generate unique content
+
+    for (let i = 0; i < posts.length; i++) {
+      let post = posts[i];
+      let isDuplicate = await hasTweetBeenPosted(post);
+      let attempts = 0;
+
+      // Regenerate if duplicate (with retry limit)
+      while (isDuplicate && attempts < maxRetries) {
+        attempts++;
+        console.log(`Post ${i + 1} is a duplicate, regenerating (attempt ${attempts}/${maxRetries})...`);
+        
+        // Regenerate based on post type
+        if (i === 0) {
+          // Crypto market update
+          post = await generateCryptoMarketUpdatePost();
+        } else if (i === 1) {
+          // Website promo
+          post = await generateWebsitePromoPost();
+        } else {
+          // Marketing posts - try different types
+          const types: Array<"fact" | "tip" | "joke" | "random"> = ["fact", "tip", "joke", "random"];
+          const randomType = types[Math.floor(Math.random() * types.length)];
+          post = await generateMarketingContent(randomType);
+        }
+        
+        isDuplicate = await hasTweetBeenPosted(post);
+      }
+
+      if (isDuplicate) {
+        console.warn(`Post ${i + 1} is still a duplicate after ${maxRetries} attempts, using it anyway`);
+      }
+
+      uniquePosts.push(post);
+    }
+
+    posts = uniquePosts;
+    console.log(`Final unique posts: ${posts.length}`);
 
     // Post tweets with maximum delay possible while staying under Vercel's 10-second timeout (Hobby plan)
     // Calculation: ~2s content generation + ~4s (4 tweets × 1s) + 3 delays = ~6s + 3X < 10s
@@ -60,13 +103,19 @@ export async function GET(request: NextRequest) {
     console.log("Posting tweets to X/Twitter with 1.3-second delays (maximum for Hobby plan)...");
     const result = await postMultipleTweets(posts, 1300); // 1.3 seconds between tweets - maximum delay for 10s timeout
 
-    // Collect successful tweet links
-    const successfulTweets = result.results
-      .filter((r) => r.success && r.tweetId && r.tweetUrl)
-      .map((r, index) => ({
-        text: posts[index] || "Tweet",
-        url: r.tweetUrl!,
-      }));
+    // Record successful tweets and collect links
+    const successfulTweets = [];
+    for (let i = 0; i < result.results.length; i++) {
+      const r = result.results[i];
+      if (r.success && r.tweetId && r.tweetUrl) {
+        // Record the posted tweet to prevent duplicates
+        await recordPostedTweet(posts[i] || "", r.tweetId);
+        successfulTweets.push({
+          text: posts[i] || "Tweet",
+          url: r.tweetUrl,
+        });
+      }
+    }
 
     // Send tweet links to Telegram if any tweets were posted successfully
     if (successfulTweets.length > 0) {

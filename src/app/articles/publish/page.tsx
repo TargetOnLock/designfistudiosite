@@ -424,12 +424,6 @@ function PublishPageContent() {
         }
       }
 
-      // Also save to localStorage as backup
-      const existingArticles = localStorage.getItem("publishedArticles");
-      const articles = existingArticles ? JSON.parse(existingArticles) : [];
-      articles.unshift(newArticle);
-      localStorage.setItem("publishedArticles", JSON.stringify(articles));
-
       // Dispatch custom event to notify articles page
       window.dispatchEvent(new Event("articlePublished"));
 

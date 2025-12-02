@@ -29,6 +29,9 @@ OPENAI_API_KEY=sk-your_openai_api_key_here
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
+# Admin Email (for admin panel access)
+ADMIN_EMAIL=your_admin_email@example.com
+
 # Solana RPC URL (optional)
 NEXT_PUBLIC_SOLANA_RPC_URL=https://rpc.ankr.com/solana
 ```
@@ -52,6 +55,9 @@ Add these in Vercel Dashboard → Settings → Environment Variables:
 **Supabase (if using):**
 - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
+
+**Admin Panel:**
+- `ADMIN_EMAIL` - Your admin email address (for accessing `/admin` page)
 
 **Optional:**
 - `NEXT_PUBLIC_SOLANA_RPC_URL` - Custom Solana RPC endpoint

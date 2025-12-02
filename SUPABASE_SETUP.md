@@ -1,6 +1,6 @@
 # Supabase Setup Guide
 
-This guide will help you set up Supabase for persistent storage of articles and referrals.
+This guide will help you set up Supabase for persistent storage of articles, referrals, and tweet tracking.
 
 ## Step 1: Create a Supabase Account
 
@@ -15,7 +15,13 @@ This guide will help you set up Supabase for persistent storage of articles and 
 
 ## Step 2: Create the Database Tables
 
-Once your project is created, go to the **SQL Editor** (left sidebar) and run the following SQL scripts:
+Once your project is created, go to the **SQL Editor** (left sidebar) and run the SQL scripts.
+
+**Quick Setup (Recommended):**
+- Copy and paste the entire contents of `SUPABASE_COMPLETE_SETUP.sql` into the SQL Editor
+- Click "Run" to create all tables at once
+
+**Or run the scripts individually below:**
 
 ### 2.1 Create Articles Table
 
@@ -49,6 +55,12 @@ CREATE POLICY "Anyone can read articles" ON articles
 CREATE POLICY "Anyone can insert articles" ON articles
   FOR INSERT
   WITH CHECK (true);
+
+-- Create policy to allow deletion (for admin panel)
+-- Note: The API route will verify admin email before allowing deletion
+CREATE POLICY "Anyone can delete articles" ON articles
+  FOR DELETE
+  USING (true);
 ```
 
 ### 2.2 Create Referrals Table
@@ -115,6 +127,38 @@ CREATE POLICY "Anyone can read referral earnings" ON referral_earnings
 
 -- Create policy to allow anyone to insert earnings
 CREATE POLICY "Anyone can insert referral earnings" ON referral_earnings
+  FOR INSERT
+  WITH CHECK (true);
+```
+
+### 2.4 Create Posted Tweets Table (for duplicate detection)
+
+```sql
+-- Create posted_tweets table to track posted tweets and prevent duplicates
+CREATE TABLE posted_tweets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  content TEXT NOT NULL,
+  content_hash TEXT NOT NULL,
+  tweet_id TEXT,
+  posted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Create index on content_hash for faster duplicate checks
+CREATE INDEX idx_posted_tweets_content_hash ON posted_tweets(content_hash);
+
+-- Create index on posted_at for faster date-based queries
+CREATE INDEX idx_posted_tweets_posted_at ON posted_tweets(posted_at);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE posted_tweets ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow anyone to read posted tweets (for duplicate checking)
+CREATE POLICY "Anyone can read posted tweets" ON posted_tweets
+  FOR SELECT
+  USING (true);
+
+-- Create policy to allow anyone to insert posted tweets
+CREATE POLICY "Anyone can insert posted tweets" ON posted_tweets
   FOR INSERT
   WITH CHECK (true);
 ```
@@ -208,6 +252,7 @@ Replace `xxxxx` and `eyJ...` with your actual values from Step 3.
 Once Supabase is set up:
 - ✅ Articles will persist across deployments
 - ✅ Referral codes and earnings will be stored permanently
+- ✅ Posted tweets will be tracked to prevent duplicates
 - ✅ All data will be accessible from any device
 - ✅ You can view and manage data in the Supabase dashboard
 
