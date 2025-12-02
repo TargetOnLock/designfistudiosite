@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, Send, Twitter, X } from "lucide-react";
+import { Menu, Send, Twitter, X, Facebook } from "lucide-react";
 import logo from "@/../public/defistudio.png";
 
 const navItems = [
@@ -98,6 +98,26 @@ export function SiteHeader() {
           >
             <Send className="h-5 w-5" />
           </a>
+          <a
+            href="https://www.facebook.com/designfi.studio"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 sm:flex"
+            aria-label="DesignFi Studio on Facebook"
+          >
+            <Facebook className="h-5 w-5" />
+          </a>
+          <a
+            href="https://www.tiktok.com/@DesignFi.Studio"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 sm:flex"
+            aria-label="DesignFi Studio on TikTok"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+            </svg>
+          </a>
           <Link
             href="/contact"
             className="hidden rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(139,92,246,0.35)] transition hover:-translate-y-0.5 lg:inline-flex"
@@ -128,6 +148,26 @@ export function SiteHeader() {
                   >
                     <Send className="h-4 w-4" />
                     Telegram
+                  </a>
+                  <a
+                    href="https://www.facebook.com/designfi.studio"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white"
+                  >
+                    <Facebook className="h-4 w-4" />
+                    Facebook
+                  </a>
+                  <a
+                    href="https://www.tiktok.com/@DesignFi.Studio"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    </svg>
+                    TikTok
                   </a>
               <Link
                 href="/contact"

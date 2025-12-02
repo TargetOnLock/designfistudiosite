@@ -22,6 +22,8 @@ const footerLinks = [
     items: [
       { label: "X (Twitter)", href: "https://x.com/DesignFiStudio" },
       { label: "Telegram", href: "https://t.me/DesignFiStudio" },
+      { label: "Facebook", href: "https://www.facebook.com/designfi.studio" },
+      { label: "TikTok", href: "https://www.tiktok.com/@DesignFi.Studio" },
       { label: "Email", href: "mailto:blaine@designfi.studio" },
       { label: "Contact", href: "/contact" },
     ],
