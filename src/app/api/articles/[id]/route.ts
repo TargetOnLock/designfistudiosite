@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { createHash } from "crypto";
 
 // Check if Supabase is configured
 const isSupabaseConfigured = () => {
@@ -9,6 +10,11 @@ const isSupabaseConfigured = () => {
   );
 };
 
+// Helper function to hash password
+function hashPassword(password: string): string {
+  return createHash("sha256").update(password).digest("hex");
+}
+
 // DELETE - Delete an article by ID
 export async function DELETE(
   request: NextRequest,
@@ -17,18 +23,30 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Verify admin authentication via email in headers
+    // Verify admin authentication via email and password hash in headers
     const adminEmail = request.headers.get("x-admin-email");
+    const adminPasswordHash = request.headers.get("x-admin-password-hash");
     const expectedAdminEmail = process.env.ADMIN_EMAIL;
+    const expectedAdminPassword = process.env.ADMIN_PASSWORD;
 
-    if (!expectedAdminEmail) {
+    if (!expectedAdminEmail || !expectedAdminPassword) {
       return NextResponse.json(
-        { error: "Admin email not configured" },
+        { error: "Admin credentials not configured" },
         { status: 500 }
       );
     }
 
-    if (!adminEmail || adminEmail !== expectedAdminEmail) {
+    // Verify email
+    if (!adminEmail || adminEmail.toLowerCase() !== expectedAdminEmail.toLowerCase()) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // Verify password hash
+    const expectedPasswordHash = hashPassword(expectedAdminPassword);
+    if (!adminPasswordHash || adminPasswordHash !== expectedPasswordHash) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }

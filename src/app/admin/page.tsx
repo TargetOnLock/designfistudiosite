@@ -16,6 +16,7 @@ interface Article {
 export default function AdminPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,10 +27,18 @@ export default function AdminPage() {
   // Check if already authenticated (stored in sessionStorage)
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedEmail = sessionStorage.getItem("adminEmail");
-      if (storedEmail) {
-        setIsAuthenticated(true);
-        loadArticles();
+      const storedAuth = sessionStorage.getItem("adminAuth");
+      if (storedAuth) {
+        try {
+          const auth = JSON.parse(storedAuth);
+          if (auth.email && auth.passwordHash) {
+            setIsAuthenticated(true);
+            loadArticles();
+          }
+        } catch (e) {
+          // Invalid stored auth, clear it
+          sessionStorage.removeItem("adminAuth");
+        }
       }
     }
   }, []);
@@ -39,38 +48,53 @@ export default function AdminPage() {
     setError("");
     setSuccess("");
 
-    // Verify email with server
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password");
+      return;
+    }
+
+    // Verify email and password with server
     try {
       const response = await fetch("/api/admin/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+        body: JSON.stringify({ 
+          email: email.trim().toLowerCase(),
+          password: password,
+        }),
       });
 
       if (response.ok) {
+        const data = await response.json();
         setIsAuthenticated(true);
         if (typeof window !== "undefined") {
-          sessionStorage.setItem("adminEmail", email.trim().toLowerCase());
+          // Store auth info (password hash for subsequent requests)
+          sessionStorage.setItem("adminAuth", JSON.stringify({
+            email: email.trim().toLowerCase(),
+            passwordHash: data.passwordHash, // Server returns a hash for subsequent requests
+          }));
         }
+        setPassword(""); // Clear password from state
         loadArticles();
       } else {
         const data = await response.json();
-        setError(data.error || "Invalid email address");
+        setError(data.error || "Invalid email or password");
       }
     } catch (error) {
-      console.error("Error verifying email:", error);
-      setError("Failed to verify email. Please try again.");
+      console.error("Error verifying credentials:", error);
+      setError("Failed to verify credentials. Please try again.");
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setEmail("");
+    setPassword("");
     setArticles([]);
     if (typeof window !== "undefined") {
-      sessionStorage.removeItem("adminEmail");
+      sessionStorage.removeItem("adminAuth");
     }
   };
 
@@ -108,11 +132,19 @@ export default function AdminPage() {
     setSuccess("");
 
     try {
-      const adminEmail = sessionStorage.getItem("adminEmail");
+      const storedAuth = sessionStorage.getItem("adminAuth");
+      if (!storedAuth) {
+        setError("Not authenticated. Please log in again.");
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const auth = JSON.parse(storedAuth);
       const response = await fetch(`/api/articles/${articleId}`, {
         method: "DELETE",
         headers: {
-          "x-admin-email": adminEmail || "",
+          "x-admin-email": auth.email || "",
+          "x-admin-password-hash": auth.passwordHash || "",
         },
       });
 
@@ -140,7 +172,7 @@ export default function AdminPage() {
         <div className="w-full max-w-md">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
             <h1 className="text-3xl font-semibold text-white mb-2">Admin Login</h1>
-            <p className="text-slate-400 mb-6">Enter your admin email to continue</p>
+            <p className="text-slate-400 mb-6">Enter your admin credentials to continue</p>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
@@ -154,6 +186,21 @@ export default function AdminPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                   placeholder="admin@example.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                  placeholder="Enter your password"
                   required
                 />
               </div>

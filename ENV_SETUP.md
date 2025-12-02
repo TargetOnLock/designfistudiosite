@@ -29,8 +29,9 @@ OPENAI_API_KEY=sk-your_openai_api_key_here
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Admin Email (for admin panel access)
+# Admin Credentials (for admin panel access)
 ADMIN_EMAIL=your_admin_email@example.com
+ADMIN_PASSWORD=your_secure_password_here
 
 # Solana RPC URL (optional)
 NEXT_PUBLIC_SOLANA_RPC_URL=https://rpc.ankr.com/solana
@@ -58,6 +59,7 @@ Add these in Vercel Dashboard → Settings → Environment Variables:
 
 **Admin Panel:**
 - `ADMIN_EMAIL` - Your admin email address (for accessing `/admin` page)
+- `ADMIN_PASSWORD` - Your admin password (use a strong, secure password)
 
 **Optional:**
 - `NEXT_PUBLIC_SOLANA_RPC_URL` - Custom Solana RPC endpoint
