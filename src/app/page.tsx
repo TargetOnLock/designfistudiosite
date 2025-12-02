@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -113,22 +114,34 @@ export default function Home() {
           </div>
           
         </div>
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 shadow-[0_25px_80px_rgba(2,6,23,0.8)] backdrop-blur">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-300">
-            Studio Pulse
-          </p>
-          <div className="mt-6 space-y-5">
-            {pillars.map((pillar) => (
-              <div
-                key={pillar.title}
-                className="rounded-2xl border border-white/10 bg-white/5 p-4"
-              >
-                <h3 className="text-base font-semibold text-white">
-                  {pillar.title}
-                </h3>
-                <p className="mt-2 text-slate-300">{pillar.description}</p>
-              </div>
-            ))}
+        <div className="relative">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 shadow-[0_25px_80px_rgba(2,6,23,0.8)] backdrop-blur">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-300">
+              Studio Pulse
+            </p>
+            <div className="mt-6 space-y-5">
+              {pillars.map((pillar) => (
+                <div
+                  key={pillar.title}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                >
+                  <h3 className="text-base font-semibold text-white">
+                    {pillar.title}
+                  </h3>
+                  <p className="mt-2 text-slate-300">{pillar.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 overflow-hidden">
+            <Image
+              src="/blockchain.png"
+              alt="Blockchain network visualization showing interconnected nodes and distributed systems powering Web3 technology"
+              width={600}
+              height={400}
+              className="w-full h-auto object-contain"
+              priority
+            />
           </div>
         </div>
       </section>
@@ -188,36 +201,47 @@ export default function Home() {
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-12">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-          <h2 className="text-2xl font-semibold text-white mb-4">
-            Our Approach: Strategic Design Meets Growth Marketing
-          </h2>
-          <p className="text-slate-300 mb-4">
-            At DesignFi Studio, we believe that great design and effective marketing
-            go hand in hand. Our process begins with deep research into your market,
-            competitors, and target audience. We analyze what&apos;s working in your
-            industry, identify gaps in the market, and develop a unique positioning
-            that sets your brand apart. This research-driven approach ensures that
-            every design decision and marketing campaign is backed by data and strategic
-            insight.
-          </p>
-          <p className="text-slate-300 mb-4">
-            Our design systems are built for scalability and consistency. Whether
-            you&apos;re launching a new product, rebranding an existing company, or
-            creating a token launch campaign, we develop visual identities that work
-            across all touchpoints. From your website and social media to packaging
-            and investor decks, our design systems ensure your brand looks cohesive
-            and professional everywhere it appears.
-          </p>
-          <p className="text-slate-300">
-            When it comes to growth marketing, we focus on measurable results. Our
-            campaigns are designed with clear KPIs and conversion goals in mind. We
-            leverage both traditional channels like Google Ads and Facebook, as well
-            as Web3-native platforms like Twitter, Discord, and Telegram. Our team
-            understands the nuances of each platform and creates content that performs
-            well in each environment, maximizing your ROI and driving real business
-            results.
-          </p>
+        <div className="grid gap-8 md:grid-cols-2 md:items-center">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <h2 className="text-2xl font-semibold text-white mb-4">
+              Our Approach: Strategic Design Meets Growth Marketing
+            </h2>
+            <p className="text-slate-300 mb-4">
+              At DesignFi Studio, we believe that great design and effective marketing
+              go hand in hand. Our process begins with deep research into your market,
+              competitors, and target audience. We analyze what&apos;s working in your
+              industry, identify gaps in the market, and develop a unique positioning
+              that sets your brand apart. This research-driven approach ensures that
+              every design decision and marketing campaign is backed by data and strategic
+              insight.
+            </p>
+            <p className="text-slate-300 mb-4">
+              Our design systems are built for scalability and consistency. Whether
+              you&apos;re launching a new product, rebranding an existing company, or
+              creating a token launch campaign, we develop visual identities that work
+              across all touchpoints. From your website and social media to packaging
+              and investor decks, our design systems ensure your brand looks cohesive
+              and professional everywhere it appears.
+            </p>
+            <p className="text-slate-300">
+              When it comes to growth marketing, we focus on measurable results. Our
+              campaigns are designed with clear KPIs and conversion goals in mind. We
+              leverage both traditional channels like Google Ads and Facebook, as well
+              as Web3-native platforms like Twitter, Discord, and Telegram. Our team
+              understands the nuances of each platform and creates content that performs
+              well in each environment, maximizing your ROI and driving real business
+              results.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 overflow-hidden">
+            <Image
+              src="/blockchain.png"
+              alt="Distributed blockchain network with interconnected nodes representing decentralized Web3 infrastructure and cryptocurrency technology"
+              width={600}
+              height={600}
+              className="w-full h-auto object-contain"
+            />
+          </div>
         </div>
       </section>
 
