@@ -12,10 +12,10 @@ const isSupabaseConfigured = () => {
 // DELETE - Delete an article by ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Verify admin authentication via email in headers
     const adminEmail = request.headers.get("x-admin-email");
