@@ -84,7 +84,7 @@ export function SiteFooter() {
             © {currentYear} DesignFi Studio. Crafted for both real-world &
             crypto-native teams.
           </p>
-          <p>Built with Next.js & Tailwind CSS</p>
+          <p>Made by DesignFi Studio</p>
         </div>
       </div>
     </footer>
