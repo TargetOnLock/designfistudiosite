@@ -28,7 +28,7 @@ const MAX_CHARACTERS = 3000;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const RECOMMENDED_IMAGE_SIZE = "1200x630px";
-const PUBLICATION_COST_USD = 100;
+const PUBLICATION_COST_USD = 20;
 const MERCHANT_WALLET = "DA7GPnpyxVkL7Lfc3vnRw1bz9XGbSAiTs7Z2GEGanvWj";
 // Wallets that get free publishing
 const FREE_PUBLISHING_WALLETS = [

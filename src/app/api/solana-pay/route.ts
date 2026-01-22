@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // This is a placeholder - you'll need to configure with your actual Solana wallet address
 const MERCHANT_WALLET = process.env.SOLANA_MERCHANT_WALLET || "DA7GPnpyxVkL7Lfc3vnRw1bz9XGbSAiTs7Z2GEGanvWj";
-const PUBLICATION_COST_USD = 100;
+const PUBLICATION_COST_USD = 20;
 
 // Fetch SOL price in USD
 async function getSolPrice(): Promise<number> {
