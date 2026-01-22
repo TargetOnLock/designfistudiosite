@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Send, Linkedin, Mail } from "lucide-react";
+import Link from "next/link";
+import { Send, Linkedin, Mail, GraduationCap, Award } from "lucide-react";
 import type { Metadata } from "next";
 import profilePic from "@/../public/pic.jpg";
 
@@ -200,6 +201,29 @@ export default function AboutPage() {
                 <Mail className="h-4 w-4" />
                 Email
               </a>
+            </div>
+            
+            {/* Education & Certifications Section */}
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Education & Credentials
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/about/courses"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/10"
+                >
+                  <GraduationCap className="h-4 w-4" />
+                  View Courses
+                </Link>
+                <Link
+                  href="/about/certifications"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/10"
+                >
+                  <Award className="h-4 w-4" />
+                  View Certifications
+                </Link>
+              </div>
             </div>
           </div>
         </div>
