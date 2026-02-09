@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Send, Linkedin, Mail, GraduationCap, Award } from "lucide-react";
+import { Send, Linkedin, Mail, GraduationCap, Award, FileDown } from "lucide-react";
 import type { Metadata } from "next";
 import profilePic from "@/../public/pic.jpg";
 
@@ -175,6 +175,17 @@ export default function AboutPage() {
                 Family-oriented and deeply dedicated to his work, Blaine leads the studio with a commitment to excellence and a focus on building lasting relationships with clients. His vision drives DesignFi Studio's mission to deliver measurable results for both Web2 and Web3 brands.
               </p>
             </div>
+            <div className="space-y-3 pt-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+                Experience summary
+              </h3>
+              <p className="text-slate-300">
+                Blaine has hands-on experience across digital marketing, SEO, content and email marketing, social strategy, and paid search—backed by HubSpot and Google certifications and a Digital Marketing curriculum from Western Wisconsin Technical College. He has applied these skills to both traditional (Web2) and crypto/blockchain (Web3) projects, from brand positioning and campaign execution to community growth and measurable ROI.
+              </p>
+              <p className="text-slate-300">
+                At DesignFi Studio he leads strategy, creative, and client delivery—focusing on clear positioning, cohesive execution, and lasting client relationships for brands that span conventional and on-chain audiences.
+              </p>
+            </div>
             <div className="flex flex-wrap gap-3 pt-4">
               <a
                 href="https://t.me/BlaineDesignFi"
@@ -200,6 +211,16 @@ export default function AboutPage() {
               >
                 <Mail className="h-4 w-4" />
                 Email
+              </a>
+              <a
+                href="/api/resume"
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-amber-200 transition hover:border-amber-500/60 hover:bg-amber-500/20"
+              >
+                <FileDown className="h-4 w-4" />
+                Download Resume
               </a>
             </div>
             
